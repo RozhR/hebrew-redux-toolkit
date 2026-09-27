@@ -1,0 +1,128 @@
+:root {
+    --color-bg: #2d3748;
+    --color-bg-dark: #1f2733;
+    --color-bg-light: #4a5568;
+    --color-bg-input: #394558;
+
+    --color-primary: #805ad5;
+    --color-primary-light: #9f7aea;
+    --color-primary-soft: #d6bcfa;
+
+    --color-text: #e2e8f0;
+    --color-text-light: #f7fafc;
+    --color-text-muted: #cbd5e1;
+    --color-text-secondary: #b9c3d3;
+    --color-text-subtle: #b8c4d6;
+
+    --color-success: #38a169;
+    --color-success-light: #48bb78;
+    --color-success-soft: #68d391;
+
+    --color-warning: #d69e2e;
+
+    --color-error: #e53e3e;
+    --color-error-light: #f56565;
+    --color-error-dark: #c53030;
+
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+    --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.45);
+
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    min-width: 100%;
+    min-height: 100%;
+}
+
+body {
+    min-width: 100%;
+    min-height: 100vh;
+
+    background: var(--color-bg);
+    color: var(--color-text);
+
+    font-family: Arial, sans-serif;
+}
+
+#root {
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* =========================================================
+   HEADINGS
+   ========================================================= */
+
+h1 {
+    margin-top: 10%;
+
+    color: var(--color-primary);
+
+    font-size: 5rem;
+    text-align: center;
+}
+
+h2 {
+    margin-top: 2%;
+
+    color: var(--color-primary);
+
+    font-size: 2rem;
+    text-align: center;
+}
+
+/* =========================================================
+   GLOBAL BUTTON
+   ========================================================= */
+
+.styled-btn {
+    padding: 12px 25px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+
+    color: white;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        transform 0.25s,
+        box-shadow 0.25s;
+}
+
+.styled-btn:hover {
+    transform: translateY(-3px);
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.styled-btn:disabled {
+    opacity: 1;
+
+    cursor: default;
+}
+
+.styled-btn:disabled:hover {
+    transform: none;
+
+    box-shadow: var(--shadow-sm);
+}

@@ -1,0 +1,118 @@
+import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
+
+import { clearStatistics } from "../store/statisticsReducer";
+
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+
+function Statistics() {
+    const dispatch = useAppDispatch();
+
+    const stats = useAppSelector((state) => state.statistics);
+
+    const handleClearStatistics = () => {
+        dispatch(clearStatistics());
+    };
+
+    const hasStatistics = CATEGORIES.some(
+        (category) => Object.keys(stats[category] ?? {}).length > 0,
+    );
+
+    return (
+        <div className="statistics-page">
+            <h2 className="statistics-title">Статистика</h2>
+
+            {!hasStatistics ? (
+                <p className="statistics-empty">
+                    Статистика пока отсутствует. Пройдите хотя бы один тест.
+                </p>
+            ) : (
+                <div className="statistics-container">
+                    {CATEGORIES.map((category) => {
+                        const categoryStats = stats[category];
+
+                        const levels = Object.entries(categoryStats ?? {}).sort(
+                            ([levelA], [levelB]) => Number(levelA) - Number(levelB),
+                        );
+
+                        return (
+                            <section className="statistics-category" key={category}>
+                                <h3>{CATEGORY_CONFIG[category].title}</h3>
+
+                                {levels.length === 0 ? (
+                                    <p className="statistics-no-results">Нет результатов</p>
+                                ) : (
+                                    levels.map(([level, attempts]) => {
+                                        const bestAttempt = attempts.reduce((best, current) =>
+                                            current.percent > best.percent ? current : best,
+                                        );
+
+                                        const averagePercent = Math.round(
+                                            attempts.reduce(
+                                                (sum, attempt) => sum + attempt.percent,
+                                                0,
+                                            ) / attempts.length,
+                                        );
+
+                                        const progressClass =
+                                            bestAttempt.percent >= 80
+                                                ? "progress-good"
+                                                : bestAttempt.percent >= 50
+                                                  ? "progress-medium"
+                                                  : "progress-low";
+
+                                        return (
+                                            <div className="statistics-level" key={level}>
+                                                <div className="statistics-level-header">
+                                                    <strong>Уровень {level}</strong>
+
+                                                    <span>{bestAttempt.percent}%</span>
+                                                </div>
+
+                                                <div className="statistics-progress">
+                                                    <div
+                                                        className={`statistics-progress-fill ${progressClass}`}
+                                                        style={{
+                                                            width: `${bestAttempt.percent}%`,
+                                                        }}
+                                                    />
+                                                </div>
+
+                                                <p>
+                                                    Правильных ответов: {bestAttempt.correct} из{" "}
+                                                    {bestAttempt.total}
+                                                </p>
+
+                                                <p className="statistics-date">
+                                                    Лучшая попытка:{" "}
+                                                    {new Date(bestAttempt.date).toLocaleString()}
+                                                </p>
+
+                                                <p className="statistics-attempts">
+                                                    Попыток: {attempts.length}
+                                                    {" · "}
+                                                    Средний балл: {averagePercent}%
+                                                </p>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </section>
+                        );
+                    })}
+                </div>
+            )}
+
+            {hasStatistics && (
+                <button
+                    type="button"
+                    className="styled-btn clear-statistics-btn"
+                    onClick={handleClearStatistics}
+                >
+                    Очистить статистику
+                </button>
+            )}
+        </div>
+    );
+}
+
+export default Statistics;
