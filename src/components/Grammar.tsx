@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import GrammarCard from "./grammar/GrammarCard";
 import { AdjectiveDetails, AdverbDetails, VerbDetails } from "./grammar/GrammarDetails";
 
-import { getAdjectiveGrammar, getAdverbGrammar, getVerbGrammar } from "../utils/grammarData";
+import { getAdjectiveGrammar } from "../utils/grammar/adjectiveGrammarData";
+import { getAdverbGrammar } from "../utils/grammar/adverbGrammarData";
+import { getVerbGrammar } from "../utils/grammar/verbGrammarData";
 import { clearGrammar, removeWord } from "../store/grammarSlice";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";

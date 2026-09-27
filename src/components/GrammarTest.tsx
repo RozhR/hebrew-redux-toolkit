@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import type { VerbGrammar, GrammarTestSection } from "../types/grammar";
 
-import { getVerbGrammar } from "../utils/grammarData";
+import { getVerbGrammar } from "../utils/grammar/verbGrammarData";
 
 import { createQuestions, GRAMMAR_TEST_SECTIONS, SECTION_TITLES } from "./grammar/grammarTestUtils";
 
