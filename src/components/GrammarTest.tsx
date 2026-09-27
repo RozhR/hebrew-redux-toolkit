@@ -4,18 +4,15 @@ import { useNavigate } from "react-router-dom";
 
 import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
 
-import { useAppSelector } from "../store/hooks";
+import { addGrammarTestAttempt } from "../store/grammarTestStatisticsSlice";
+
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import type { VerbGrammar } from "../types/grammar";
 
 import { getVerbGrammar } from "../utils/grammarData";
 
-import {
-    createQuestions,
-    GRAMMAR_TEST_SECTIONS,
-    saveGrammarTestAttempt,
-    SECTION_TITLES,
-} from "./grammar/grammarTestUtils";
+import { createQuestions, GRAMMAR_TEST_SECTIONS, SECTION_TITLES } from "./grammar/grammarTestUtils";
 
 import type { GrammarQuestion, GrammarTestSection } from "./grammar/grammarTestUtils";
 
@@ -23,6 +20,8 @@ type QuestionLimit = "10" | "20" | "all";
 
 function GrammarTest() {
     const navigate = useNavigate();
+
+    const dispatch = useAppDispatch();
 
     const words = useAppSelector((state) => state.grammar.words);
 
@@ -83,10 +82,13 @@ function GrammarTest() {
         const nextQuestions = allQuestions.slice(0, limit);
 
         setQuestions(nextQuestions);
+
         setCurrentIndex(0);
         setCorrectAnswers(0);
         setSelectedAnswer(null);
+
         setTimeLeft(TEST_TIMER_SECONDS);
+
         setIsTimeout(false);
         setIsFinished(false);
         setIsStarted(true);
@@ -101,6 +103,7 @@ function GrammarTest() {
             setTimeLeft((previous) => {
                 if (previous <= 1) {
                     window.clearInterval(timerId);
+
                     setIsTimeout(true);
 
                     return 0;
@@ -131,13 +134,15 @@ function GrammarTest() {
         const percent =
             questions.length > 0 ? Math.round((correctAnswers / questions.length) * 100) : 0;
 
-        saveGrammarTestAttempt({
-            percent,
-            correct: correctAnswers,
-            total: questions.length,
-            date: new Date().toISOString(),
-            sections: selectedSections,
-        });
+        dispatch(
+            addGrammarTestAttempt({
+                percent,
+                correct: correctAnswers,
+                total: questions.length,
+                date: new Date().toISOString(),
+                sections: selectedSections,
+            }),
+        );
 
         setIsFinished(true);
     };
@@ -147,12 +152,16 @@ function GrammarTest() {
 
         if (nextIndex >= questions.length) {
             finishTest();
+
             return;
         }
 
         setCurrentIndex(nextIndex);
+
         setSelectedAnswer(null);
+
         setIsTimeout(false);
+
         setTimeLeft(TEST_TIMER_SECONDS);
     };
 
@@ -275,6 +284,7 @@ function GrammarTest() {
                             className="styled-btn"
                             onClick={() => {
                                 setIsStarted(false);
+
                                 setIsFinished(false);
                             }}
                         >

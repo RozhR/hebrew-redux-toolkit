@@ -212,19 +212,11 @@ export function createQuestions(
     const questions: GrammarQuestion[] = [];
 
     grammars.forEach((grammar) => {
-        /*
-         * Все варианты ответа берём только
-         * из форм текущего глагола.
-         */
         const allCurrentVerbForms = Array.from(new Set(getAllForms(grammar)));
 
         sections.forEach((section) => {
             const forms = getSectionForms(grammar, section);
 
-            /*
-             * В первую очередь используются
-             * формы текущего времени.
-             */
             const sameSectionForms = Array.from(
                 new Set(forms.map((item) => item.value).filter(isValidForm)),
             );
@@ -234,12 +226,6 @@ export function createQuestions(
                     return;
                 }
 
-                /*
-                 * Если в текущем времени
-                 * вариантов недостаточно,
-                 * добавляем формы других времён,
-                 * но всё равно только этого глагола.
-                 */
                 const wrongCandidates = Array.from(
                     new Set([...sameSectionForms, ...allCurrentVerbForms]),
                 ).filter((value) => value !== form.value);
@@ -267,20 +253,4 @@ export function createQuestions(
     });
 
     return shuffleArray(questions);
-}
-
-export function saveGrammarTestAttempt(attempt: GrammarTestAttempt): void {
-    const key = "grammarTestStats";
-
-    try {
-        const saved = localStorage.getItem(key);
-
-        const attempts: GrammarTestAttempt[] = saved ? JSON.parse(saved) : [];
-
-        attempts.push(attempt);
-
-        localStorage.setItem(key, JSON.stringify(attempts));
-    } catch {
-        localStorage.setItem(key, JSON.stringify([attempt]));
-    }
 }

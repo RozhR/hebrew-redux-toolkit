@@ -1,18 +1,21 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import { grammarReducer } from "./grammarSlice";
+import { grammarTestStatisticsReducer } from "./grammarTestStatisticsSlice";
 import { progressReducer } from "./progressSlice";
 import { statisticsReducer } from "./statisticsSlice";
 
 const GRAMMAR_STORAGE_KEY = "grammarWords";
 const STATISTICS_STORAGE_KEY = "testStats";
 const PROGRESS_STORAGE_KEY = "userProgress";
+const GRAMMAR_TEST_STATISTICS_STORAGE_KEY = "grammarTestStats";
 
 export const store = configureStore({
     reducer: {
         grammar: grammarReducer,
         statistics: statisticsReducer,
         progress: progressReducer,
+        grammarTestStatistics: grammarTestStatisticsReducer,
     },
 });
 
@@ -24,6 +27,11 @@ store.subscribe(() => {
     localStorage.setItem(STATISTICS_STORAGE_KEY, JSON.stringify(state.statistics));
 
     localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(state.progress));
+
+    localStorage.setItem(
+        GRAMMAR_TEST_STATISTICS_STORAGE_KEY,
+        JSON.stringify(state.grammarTestStatistics),
+    );
 });
 
 export type RootState = ReturnType<typeof store.getState>;
