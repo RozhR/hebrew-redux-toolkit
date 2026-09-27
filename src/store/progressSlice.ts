@@ -1,3 +1,5 @@
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+
 import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
 
 import { PASS_PERCENT } from "../config/test";
@@ -65,7 +67,7 @@ function loadProgress(): UserProgress {
             };
         }
     } catch {
-        // Используем восстановление из статистики.
+        // Восстанавливаем прогресс из статистики.
     }
 
     return getProgressFromStatistics();
@@ -73,49 +75,27 @@ function loadProgress(): UserProgress {
 
 const initialState: UserProgress = loadProgress();
 
-const UNLOCK_NEXT_LEVEL = "progress/unlockNextLevel";
-
-type UnlockNextLevelAction = {
-    type: typeof UNLOCK_NEXT_LEVEL;
-    payload: {
-        category: Category;
-        level: number;
-    };
+type UnlockNextLevelPayload = {
+    category: Category;
+    level: number;
 };
 
-export type ProgressAction = UnlockNextLevelAction;
+const progressSlice = createSlice({
+    name: "progress",
 
-export function unlockNextLevel(category: Category, level: number): UnlockNextLevelAction {
-    return {
-        type: UNLOCK_NEXT_LEVEL,
-        payload: {
-            category,
-            level,
-        },
-    };
-}
+    initialState,
 
-export function progressReducer(
-    state: UserProgress = initialState,
-    action: ProgressAction,
-): UserProgress {
-    switch (action.type) {
-        case UNLOCK_NEXT_LEVEL: {
+    reducers: {
+        unlockNextLevel(state, action: PayloadAction<UnlockNextLevelPayload>) {
             const { category, level } = action.payload;
 
             const nextLevel = Math.min(level + 1, CATEGORY_CONFIG[category].levels);
 
-            if (state[category] >= nextLevel) {
-                return state;
-            }
+            state[category] = Math.max(state[category], nextLevel);
+        },
+    },
+});
 
-            return {
-                ...state,
-                [category]: nextLevel,
-            };
-        }
+export const { unlockNextLevel } = progressSlice.actions;
 
-        default:
-            return state;
-    }
-}
+export const progressReducer = progressSlice.reducer;

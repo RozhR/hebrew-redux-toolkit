@@ -5,7 +5,7 @@ import GrammarCard from "./grammar/GrammarCard";
 import { AdjectiveDetails, AdverbDetails, VerbDetails } from "./grammar/GrammarDetails";
 
 import { getAdjectiveGrammar, getAdverbGrammar, getVerbGrammar } from "../utils/grammarData";
-import { clearGrammar, removeWord } from "../store/grammarReducer";
+import { clearGrammar, removeWord } from "../store/grammarSlice";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 

@@ -4,11 +4,11 @@ import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../conf
 
 import type { CardData, Category, TestAttempt } from "../types";
 
-import { addTestAttempt } from "../store/statisticsReducer";
+import { addTestAttempt } from "../store/statisticsSlice";
 
 import { useAppDispatch } from "../store/hooks";
 
-import { unlockNextLevel } from "../store/progressReducer";
+import { unlockNextLevel } from "../store/progressSlice";
 
 interface TestProps {
     words: CardData[];
@@ -78,10 +78,21 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
             date: new Date().toISOString(),
         };
 
-        dispatch(addTestAttempt(category, level, attempt));
+        dispatch(
+            addTestAttempt({
+                category,
+                level,
+                attempt,
+            }),
+        );
 
         if (percent >= PASS_PERCENT) {
-            dispatch(unlockNextLevel(category, level));
+            dispatch(
+                unlockNextLevel({
+                    category,
+                    level,
+                }),
+            );
         }
 
         setIsFinished(true);

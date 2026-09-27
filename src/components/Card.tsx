@@ -7,7 +7,7 @@ import {
     useState,
 } from "react";
 
-import { addWord, removeWord } from "../store/grammarReducer";
+import { addWord, removeWord } from "../store/grammarSlice";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 

@@ -1,6 +1,6 @@
 import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
 
-import { clearStatistics } from "../store/statisticsReducer";
+import { clearStatistics } from "../store/statisticsSlice";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 

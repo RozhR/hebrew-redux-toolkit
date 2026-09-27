@@ -2,7 +2,7 @@ import { type DragEvent, useState } from "react";
 
 import { isCategory } from "../config/categories";
 
-import { addWord } from "../store/grammarReducer";
+import { addWord } from "../store/grammarSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import type { GrammarWordRef } from "../types/grammar";
