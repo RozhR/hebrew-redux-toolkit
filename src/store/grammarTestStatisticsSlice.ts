@@ -1,8 +1,64 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-import type { GrammarTestAttempt } from "../components/grammar/grammarTestUtils";
+import type {
+    GrammarTestAttempt,
+    GrammarTestSection,
+} from "../components/grammar/grammarTestUtils";
 
 const STORAGE_KEY = "grammarTestStats";
+
+const VALID_SECTIONS: GrammarTestSection[] = ["present", "past", "future", "imperative"];
+
+function isGrammarTestSection(value: unknown): value is GrammarTestSection {
+    return typeof value === "string" && VALID_SECTIONS.includes(value as GrammarTestSection);
+}
+
+function isGrammarTestAttempt(value: unknown): value is GrammarTestAttempt {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        return false;
+    }
+
+    const attempt = value as Record<string, unknown>;
+
+    if (
+        typeof attempt.percent !== "number" ||
+        !Number.isFinite(attempt.percent) ||
+        attempt.percent < 0 ||
+        attempt.percent > 100
+    ) {
+        return false;
+    }
+
+    if (
+        typeof attempt.correct !== "number" ||
+        !Number.isInteger(attempt.correct) ||
+        attempt.correct < 0
+    ) {
+        return false;
+    }
+
+    if (
+        typeof attempt.total !== "number" ||
+        !Number.isInteger(attempt.total) ||
+        attempt.total < 0
+    ) {
+        return false;
+    }
+
+    if (attempt.correct > attempt.total) {
+        return false;
+    }
+
+    if (typeof attempt.date !== "string") {
+        return false;
+    }
+
+    if (!Array.isArray(attempt.sections)) {
+        return false;
+    }
+
+    return attempt.sections.every(isGrammarTestSection);
+}
 
 function loadGrammarTestStatistics(): GrammarTestAttempt[] {
     try {
@@ -18,7 +74,7 @@ function loadGrammarTestStatistics(): GrammarTestAttempt[] {
             return [];
         }
 
-        return parsed as GrammarTestAttempt[];
+        return parsed.filter(isGrammarTestAttempt);
     } catch {
         return [];
     }
