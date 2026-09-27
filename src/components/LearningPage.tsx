@@ -51,8 +51,10 @@ function LearningPage({ testMode = false }: LearningPageProps) {
         return <Navigate to={`/${categoryParam}/1`} replace />;
     }
 
-    if (level > progress[categoryParam]) {
-        return <Navigate to={`/${categoryParam}/1`} replace />;
+    const highestUnlockedLevel = Math.min(progress[categoryParam], maxLevel);
+
+    if (level > highestUnlockedLevel) {
+        return <Navigate to={`/${categoryParam}/${highestUnlockedLevel}`} replace />;
     }
 
     const cards = getCards(categoryParam, level);

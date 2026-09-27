@@ -8,13 +8,13 @@ import { addGrammarTestAttempt } from "../store/grammarTestStatisticsSlice";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
-import type { VerbGrammar } from "../types/grammar";
+import type { VerbGrammar, GrammarTestSection } from "../types/grammar";
 
 import { getVerbGrammar } from "../utils/grammarData";
 
 import { createQuestions, GRAMMAR_TEST_SECTIONS, SECTION_TITLES } from "./grammar/grammarTestUtils";
 
-import type { GrammarQuestion, GrammarTestSection } from "./grammar/grammarTestUtils";
+import type { GrammarQuestion } from "./grammar/grammarTestUtils";
 
 type QuestionLimit = "10" | "20" | "all";
 

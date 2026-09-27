@@ -1,6 +1,4 @@
-import type { VerbGrammar } from "../../types/grammar";
-
-export type GrammarTestSection = "present" | "past" | "future" | "imperative";
+import type { GrammarTestSection, VerbGrammar } from "../../types/grammar";
 
 export interface GrammarQuestion {
     id: string;
@@ -11,14 +9,6 @@ export interface GrammarQuestion {
     person: string;
     correctAnswer: string;
     answers: string[];
-}
-
-export interface GrammarTestAttempt {
-    percent: number;
-    correct: number;
-    total: number;
-    date: string;
-    sections: GrammarTestSection[];
 }
 
 interface VerbForm {

@@ -192,3 +192,13 @@ export interface AdverbGrammar {
     relation?: AdverbRelation;
     examples: AdverbExamples;
 }
+
+export type GrammarTestSection = "present" | "past" | "future" | "imperative";
+
+export interface GrammarTestAttempt {
+    percent: number;
+    correct: number;
+    total: number;
+    date: string;
+    sections: GrammarTestSection[];
+}

@@ -1,31 +1,64 @@
-import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
+import { CATEGORIES, CATEGORY_CONFIG } from "../config/categories";
+
+import { clearGrammarTestStatistics } from "../store/grammarTestStatisticsSlice";
+
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import { clearStatistics } from "../store/statisticsSlice";
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { SECTION_TITLES } from "./grammar/grammarTestUtils";
 
 function Statistics() {
     const dispatch = useAppDispatch();
 
     const stats = useAppSelector((state) => state.statistics);
 
+    const grammarTestStats = useAppSelector((state) => state.grammarTestStatistics);
+
     const handleClearStatistics = () => {
         dispatch(clearStatistics());
+    };
+
+    const handleClearGrammarStatistics = () => {
+        dispatch(clearGrammarTestStatistics());
     };
 
     const hasStatistics = CATEGORIES.some(
         (category) => Object.keys(stats[category] ?? {}).length > 0,
     );
 
+    const hasGrammarStatistics = grammarTestStats.length > 0;
+
+    const hasAnyStatistics = hasStatistics || hasGrammarStatistics;
+
+    const bestGrammarAttempt = hasGrammarStatistics
+        ? grammarTestStats.reduce((best, current) =>
+              current.percent > best.percent ? current : best,
+          )
+        : null;
+
+    const averageGrammarPercent = hasGrammarStatistics
+        ? Math.round(
+              grammarTestStats.reduce((sum, attempt) => sum + attempt.percent, 0) /
+                  grammarTestStats.length,
+          )
+        : 0;
+
+    const latestGrammarAttempt = hasGrammarStatistics
+        ? grammarTestStats[grammarTestStats.length - 1]
+        : null;
+
     return (
         <div className="statistics-page">
             <h2 className="statistics-title">Статистика</h2>
 
-            {!hasStatistics ? (
+            {!hasAnyStatistics && (
                 <p className="statistics-empty">
                     Статистика пока отсутствует. Пройдите хотя бы один тест.
                 </p>
-            ) : (
+            )}
+
+            {hasStatistics && (
                 <div className="statistics-container">
                     {CATEGORIES.map((category) => {
                         const categoryStats = stats[category];
@@ -108,7 +141,83 @@ function Statistics() {
                     className="styled-btn clear-statistics-btn"
                     onClick={handleClearStatistics}
                 >
-                    Очистить статистику
+                    Очистить статистику тестов
+                </button>
+            )}
+
+            {hasGrammarStatistics && bestGrammarAttempt && latestGrammarAttempt && (
+                <div className="statistics-container">
+                    <section className="statistics-category">
+                        <h3>Грамматические тесты</h3>
+
+                        <div className="statistics-level">
+                            <div className="statistics-level-header">
+                                <strong>Лучший результат</strong>
+
+                                <span>{bestGrammarAttempt.percent}%</span>
+                            </div>
+
+                            <div className="statistics-progress">
+                                <div
+                                    className={`statistics-progress-fill ${
+                                        bestGrammarAttempt.percent >= 80
+                                            ? "progress-good"
+                                            : bestGrammarAttempt.percent >= 50
+                                              ? "progress-medium"
+                                              : "progress-low"
+                                    }`}
+                                    style={{
+                                        width: `${bestGrammarAttempt.percent}%`,
+                                    }}
+                                />
+                            </div>
+
+                            <p>
+                                Правильных ответов в лучшей попытке: {bestGrammarAttempt.correct} из{" "}
+                                {bestGrammarAttempt.total}
+                            </p>
+
+                            <p className="statistics-attempts">
+                                Попыток: {grammarTestStats.length}
+                                {" · "}
+                                Средний балл: {averageGrammarPercent}%
+                            </p>
+                        </div>
+
+                        <div className="statistics-level">
+                            <div className="statistics-level-header">
+                                <strong>Последняя попытка</strong>
+
+                                <span>{latestGrammarAttempt.percent}%</span>
+                            </div>
+
+                            <p>
+                                Правильных ответов: {latestGrammarAttempt.correct} из{" "}
+                                {latestGrammarAttempt.total}
+                            </p>
+
+                            <p>
+                                Разделы:{" "}
+                                {latestGrammarAttempt.sections
+                                    .map((section) => SECTION_TITLES[section])
+                                    .join(", ")}
+                            </p>
+
+                            <p className="statistics-date">
+                                Дата: {new Date(latestGrammarAttempt.date).toLocaleString()}
+                            </p>
+                        </div>
+                    </section>
+                </div>
+            )}
+
+            {hasGrammarStatistics && (
+                <button
+                    type="button"
+                    className="styled-btn clear-statistics-btn"
+                    onClick={handleClearGrammarStatistics}
+                >
+                    Очистить статистику грамматики
                 </button>
             )}
         </div>

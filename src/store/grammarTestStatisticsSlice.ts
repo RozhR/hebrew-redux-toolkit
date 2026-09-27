@@ -1,9 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-import type {
-    GrammarTestAttempt,
-    GrammarTestSection,
-} from "../components/grammar/grammarTestUtils";
+import type { GrammarTestAttempt, GrammarTestSection } from "../types/grammar";
 
 const STORAGE_KEY = "grammarTestStats";
 
