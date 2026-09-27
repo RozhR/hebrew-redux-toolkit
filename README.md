@@ -374,7 +374,7 @@ npm run build
 
 ## Current Status
 
-Frontend v1.0 is being finalized.
+Frontend v1.0 is complete.
 
 Completed:
 
