@@ -1,16 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { getVerbGrammarFromApi } from "../api/verbGrammar";
 
 import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
 
 import { addGrammarTestAttempt } from "../store/grammarTestStatisticsSlice";
-
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
-import type { VerbGrammar, GrammarTestSection } from "../types/grammar";
-
-import { getVerbGrammar } from "../utils/grammar/verbGrammarData";
+import type { GrammarTestSection, VerbGrammar } from "../types/grammar";
 
 import { createQuestions, GRAMMAR_TEST_SECTIONS, SECTION_TITLES } from "./grammar/grammarTestUtils";
 
@@ -25,14 +23,13 @@ function GrammarTest() {
 
     const words = useAppSelector((state) => state.grammar.words);
 
-    const verbGrammars = useMemo(
-        () =>
-            words
-                .filter((word) => word.category === "verbs")
-                .map((word) => getVerbGrammar(word.id))
-                .filter((grammar): grammar is VerbGrammar => grammar !== undefined),
-        [words],
-    );
+    const verbWords = words.filter((word) => word.category === "verbs");
+
+    const [verbGrammars, setVerbGrammars] = useState<VerbGrammar[]>([]);
+
+    const [isLoading, setIsLoading] = useState(verbWords.length > 0);
+
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     const [selectedSections, setSelectedSections] = useState<GrammarTestSection[]>([
         "present",
@@ -59,6 +56,49 @@ function GrammarTest() {
     const [isFinished, setIsFinished] = useState(false);
 
     const currentQuestion = questions[currentIndex];
+
+    useEffect(() => {
+        const currentVerbWords = words.filter((word) => word.category === "verbs");
+
+        if (currentVerbWords.length === 0) {
+            return;
+        }
+
+        let isActive = true;
+
+        async function loadVerbGrammars() {
+            try {
+                setIsLoading(true);
+                setLoadError(null);
+
+                const grammars = await Promise.all(
+                    currentVerbWords.map((word) => getVerbGrammarFromApi(word.id)),
+                );
+
+                if (isActive) {
+                    setVerbGrammars(grammars);
+                }
+            } catch (error) {
+                if (isActive) {
+                    setLoadError(
+                        error instanceof Error
+                            ? error.message
+                            : "Не удалось загрузить грамматику глаголов",
+                    );
+                }
+            } finally {
+                if (isActive) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        void loadVerbGrammars();
+
+        return () => {
+            isActive = false;
+        };
+    }, [words]);
 
     const toggleSection = (section: GrammarTestSection) => {
         setSelectedSections((current) => {
@@ -165,7 +205,7 @@ function GrammarTest() {
         setTimeLeft(TEST_TIMER_SECONDS);
     };
 
-    if (verbGrammars.length === 0) {
+    if (verbWords.length === 0) {
         return (
             <main className="grammar-test-page">
                 <h2 className="grammar-page-title">Тест по глаголам</h2>
@@ -174,6 +214,40 @@ function GrammarTest() {
                     <h3>Нет выбранных глаголов</h3>
 
                     <p>Добавьте хотя бы один глагол в раздел «Грамматика».</p>
+
+                    <button
+                        type="button"
+                        className="styled-btn"
+                        onClick={() => navigate("/grammar")}
+                    >
+                        Вернуться к грамматике
+                    </button>
+                </div>
+            </main>
+        );
+    }
+
+    if (isLoading) {
+        return (
+            <main className="grammar-test-page">
+                <h2 className="grammar-page-title">Тест по глаголам</h2>
+
+                <div className="grammar-empty">
+                    <h3>Загрузка грамматики...</h3>
+                </div>
+            </main>
+        );
+    }
+
+    if (loadError) {
+        return (
+            <main className="grammar-test-page">
+                <h2 className="grammar-page-title">Тест по глаголам</h2>
+
+                <div className="grammar-empty">
+                    <h3>Ошибка загрузки</h3>
+
+                    <p>{loadError}</p>
 
                     <button
                         type="button"
@@ -284,7 +358,6 @@ function GrammarTest() {
                             className="styled-btn"
                             onClick={() => {
                                 setIsStarted(false);
-
                                 setIsFinished(false);
                             }}
                         >
