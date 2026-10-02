@@ -1,30 +1,15 @@
+import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 import CardList from "./CardList";
 import { Test } from "./Test";
 
-import { CARDS_PER_LEVEL, CATEGORY_CONFIG, isCategory } from "../config/categories";
-
-import { adjectivesData } from "../data/adjectives";
-import { adverbsData } from "../data/adverbs";
-import { verbsData } from "../data/verbs";
+import { getVocabulary } from "../api/vocabulary";
+import { CATEGORY_CONFIG, isCategory } from "../config/categories";
 
 import { useAppSelector } from "../store/hooks";
 
-import type { Category } from "../types";
-
-function getCards(category: Category, level: number) {
-    switch (category) {
-        case "verbs":
-            return verbsData[level] ?? [];
-
-        case "adjectives":
-            return adjectivesData[level] ?? [];
-
-        case "adverbs":
-            return adverbsData[level] ?? [];
-    }
-}
+import type { CardWithId } from "../types";
 
 type LearningPageProps = {
     testMode?: boolean;
@@ -37,33 +22,97 @@ function LearningPage({ testMode = false }: LearningPageProps) {
 
     const { category: categoryParam, level: levelParam } = useParams();
 
-    if (!isCategory(categoryParam)) {
-        return <Navigate to="/verbs/1" replace />;
-    }
+    const category = isCategory(categoryParam) ? categoryParam : null;
 
     const level = Number(levelParam);
 
-    const categoryConfig = CATEGORY_CONFIG[categoryParam];
+    const [cards, setCards] = useState<CardWithId[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!category || !Number.isInteger(level)) {
+            return;
+        }
+
+        const currentCategory = category;
+        const currentLevel = level;
+
+        let isActive = true;
+
+        async function loadCards() {
+            try {
+                setIsLoading(true);
+                setError(null);
+
+                const loadedCards = await getVocabulary(currentCategory, currentLevel);
+
+                if (isActive) {
+                    setCards(loadedCards);
+                }
+            } catch (loadError) {
+                if (isActive) {
+                    setError(
+                        loadError instanceof Error
+                            ? loadError.message
+                            : "Не удалось загрузить слова",
+                    );
+                }
+            } finally {
+                if (isActive) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        void loadCards();
+
+        return () => {
+            isActive = false;
+        };
+    }, [category, level]);
+
+    if (!category) {
+        return <Navigate to="/verbs/1" replace />;
+    }
+
+    const categoryConfig = CATEGORY_CONFIG[category];
 
     const maxLevel = categoryConfig.levels;
 
     if (!Number.isInteger(level) || level < 1 || level > maxLevel) {
-        return <Navigate to={`/${categoryParam}/1`} replace />;
+        return <Navigate to={`/${category}/1`} replace />;
     }
 
-    const highestUnlockedLevel = Math.min(progress[categoryParam], maxLevel);
+    const highestUnlockedLevel = Math.min(progress[category], maxLevel);
 
     if (level > highestUnlockedLevel) {
-        return <Navigate to={`/${categoryParam}/${highestUnlockedLevel}`} replace />;
+        return <Navigate to={`/${category}/${highestUnlockedLevel}`} replace />;
     }
 
-    const cards = getCards(categoryParam, level);
+    if (isLoading) {
+        return (
+            <>
+                <h2 className="level-title">
+                    {categoryConfig.title} — Уровень {level}
+                </h2>
 
-    const cardsWithIds = cards.map((card, index) => ({
-        ...card,
+                <p>Загрузка...</p>
+            </>
+        );
+    }
 
-        id: (level - 1) * CARDS_PER_LEVEL + index + 1,
-    }));
+    if (error) {
+        return (
+            <>
+                <h2 className="level-title">
+                    {categoryConfig.title} — Уровень {level}
+                </h2>
+
+                <p>Ошибка загрузки данных: {error}</p>
+            </>
+        );
+    }
 
     return (
         <>
@@ -73,19 +122,19 @@ function LearningPage({ testMode = false }: LearningPageProps) {
 
             {testMode ? (
                 <Test
-                    key={`${categoryParam}-${level}`}
+                    key={`${category}-${level}`}
                     words={cards}
-                    category={categoryParam}
+                    category={category}
                     level={level}
                     isLastLevel={level === maxLevel}
-                    onBackToCards={() => navigate(`/${categoryParam}/${level}`)}
+                    onBackToCards={() => navigate(`/${category}/${level}`)}
                 />
             ) : (
                 <CardList
-                    key={`${categoryParam}-${level}`}
-                    cards={cardsWithIds}
-                    category={categoryParam}
-                    onStartTest={() => navigate(`/${categoryParam}/${level}/test`)}
+                    key={`${category}-${level}`}
+                    cards={cards}
+                    category={category}
+                    onStartTest={() => navigate(`/${category}/${level}/test`)}
                 />
             )}
         </>
