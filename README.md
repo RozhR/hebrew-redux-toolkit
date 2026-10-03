@@ -10,9 +10,9 @@ The interface is currently in Russian, while the learning content focuses on Heb
 
 - Hebrew vocabulary flashcards
 - Three vocabulary categories:
-  - Verbs — 25 levels
-  - Adjectives — 25 levels
-  - Adverbs — 15 levels
+    - Verbs — 25 levels
+    - Adjectives — 25 levels
+    - Adverbs — 15 levels
 - 20 cards per level
 - Card shuffle
 - Flip cards with Hebrew and Russian translations
@@ -53,3 +53,4 @@ The backend is maintained in a separate repository:
 
 ```text
 https://github.com/RozhR/hebrew-backend
+```

@@ -1,19 +1,38 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
+import { hebrewApi, useGetCurrentUserQuery } from "../api/hebrewApi";
 import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
-import { useAppSelector } from "../store/hooks";
+import { clearAccessToken } from "../store/authSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { Category } from "../types";
 
 function Navbar() {
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
     const [openCategory, setOpenCategory] = useState<Category | null>(null);
 
     const count = useAppSelector((state) => state.grammar.words.length);
-
     const progress = useAppSelector((state) => state.progress);
+    const accessToken = useAppSelector((state) => state.auth.accessToken);
+
+    const { data: user, isLoading: isUserLoading } = useGetCurrentUserQuery(undefined, {
+        skip: !accessToken,
+    });
 
     const closeMenu = () => {
         setOpenCategory(null);
+    };
+
+    const handleLogout = () => {
+        dispatch(clearAccessToken());
+
+        dispatch(hebrewApi.util.resetApiState());
+
+        closeMenu();
+
+        navigate("/");
     };
 
     return (
@@ -91,6 +110,28 @@ function Navbar() {
                     <NavLink to="/statistics" className="nav-link" onClick={closeMenu}>
                         Статистика
                     </NavLink>
+                </li>
+
+                <li className="auth-section">
+                    {!accessToken ? (
+                        <NavLink to="/login" className="nav-link" onClick={closeMenu}>
+                            Войти
+                        </NavLink>
+                    ) : (
+                        <div className="auth-controls">
+                            <NavLink
+                                to="/profile"
+                                className="nav-link auth-nav-link"
+                                onClick={closeMenu}
+                            >
+                                {isUserLoading ? "Профиль" : user?.first_name || "Профиль"}
+                            </NavLink>
+
+                            <button type="button" className="logout-btn" onClick={handleLogout}>
+                                Выйти
+                            </button>
+                        </div>
+                    )}
                 </li>
             </ul>
         </nav>

@@ -6,6 +6,10 @@ import LearningPage from "./components/LearningPage";
 import Navbar from "./components/Navbar";
 import Statistics from "./components/Statistics";
 
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import Profile from "./components/auth/Profile";
+
 import "./App.css";
 
 const Grammar = lazy(() => import("./components/Grammar"));
@@ -18,6 +22,10 @@ function App() {
 
             <Routes>
                 <Route path="/" element={<Home />} />
+
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/profile" element={<Profile />} />
 
                 <Route path="/statistics" element={<Statistics />} />
 
@@ -44,7 +52,6 @@ function App() {
                 />
 
                 <Route path="/:category/:level" element={<LearningPage />} />
-
                 <Route path="/:category/:level/test" element={<LearningPage testMode />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
