@@ -8,15 +8,35 @@ import { clearStatistics } from "../store/statisticsSlice";
 
 import { SECTION_TITLES } from "./grammar/grammarTestUtils";
 
+import { useClearStatisticsMutation } from "../api/hebrewApi";
+
 function Statistics() {
     const dispatch = useAppDispatch();
+
+    const accessToken = useAppSelector((state) => state.auth.accessToken);
+
+    const [clearStatisticsOnServer, { isLoading: isClearingStatistics }] =
+        useClearStatisticsMutation();
 
     const stats = useAppSelector((state) => state.statistics);
 
     const grammarTestStats = useAppSelector((state) => state.grammarTestStatistics);
 
-    const handleClearStatistics = () => {
-        dispatch(clearStatistics());
+    const handleClearStatistics = async () => {
+        if (!accessToken) {
+            dispatch(clearStatistics());
+
+            return;
+        }
+
+        try {
+            await clearStatisticsOnServer().unwrap();
+
+            dispatch(clearStatistics());
+        } catch {
+            // Если сервер не очистил статистику,
+            // локальные данные тоже оставляем.
+        }
     };
 
     const handleClearGrammarStatistics = () => {
@@ -140,8 +160,9 @@ function Statistics() {
                     type="button"
                     className="styled-btn clear-statistics-btn"
                     onClick={handleClearStatistics}
+                    disabled={isClearingStatistics}
                 >
-                    Очистить статистику тестов
+                    {isClearingStatistics ? "Очистка..." : "Очистить статистику тестов"}
                 </button>
             )}
 

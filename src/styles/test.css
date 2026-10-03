@@ -7,12 +7,15 @@
     max-width: 1000px;
     margin: 25px auto 50px;
     padding: 0 20px;
+
     text-align: center;
 }
 
 .question-number {
     margin: 15px 0;
+
     color: var(--color-text);
+
     font-size: 20px;
 }
 
@@ -24,16 +27,23 @@
     width: 100%;
     height: 18px;
     margin: 15px auto 20px;
+
     overflow: hidden;
+
     border-radius: 12px;
+
     background: var(--color-bg-light);
+
     box-shadow: var(--shadow-sm);
 }
 
 .progress-fill {
     height: 100%;
+
     border-radius: inherit;
+
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+
     transition: width 0.3s ease;
 }
 
@@ -44,9 +54,12 @@
 .timer {
     min-height: 35px;
     margin: 15px 0 35px;
+
     color: var(--color-text-light);
+
     font-size: 25px;
     font-weight: 700;
+
     transition:
         color 0.3s,
         transform 0.3s;
@@ -54,6 +67,7 @@
 
 .timer-warning {
     color: var(--color-error-light);
+
     transform: scale(1.08);
 }
 
@@ -72,6 +86,7 @@
     color: var(--color-primary-light);
 
     direction: rtl;
+
     font-size: 5rem;
     line-height: 1.1;
     text-align: center;
@@ -120,12 +135,14 @@
 .answer-result {
     min-height: 135px;
     margin-top: 20px;
+
     text-align: center;
 }
 
 .correct,
 .wrong {
     margin-top: 15px;
+
     font-size: 26px;
     font-weight: 700;
 }
@@ -140,7 +157,9 @@
 
 .correct-answer-text {
     margin: 12px 0 15px;
+
     color: var(--color-text);
+
     font-size: 18px;
 }
 
@@ -156,7 +175,6 @@
 .test-result-card {
     width: 100%;
     max-width: 550px;
-
     margin: 45px auto 0;
     padding: 35px;
 
@@ -165,17 +183,21 @@
     background: linear-gradient(135deg, var(--color-bg-light), var(--color-bg));
 
     box-shadow: var(--shadow-lg);
+
     text-align: center;
 }
 
 .test-result-title {
     margin-bottom: 20px;
+
     color: var(--color-primary-light);
+
     font-size: 32px;
 }
 
 .test-result-percent {
     margin: 10px 0 20px;
+
     font-size: 64px;
     font-weight: 700;
 }
@@ -192,12 +214,15 @@
 
 .test-result-text {
     margin: 10px 0;
+
     color: var(--color-text-light);
+
     font-size: 20px;
 }
 
 .test-result-message {
     margin-top: 20px;
+
     font-size: 18px;
     line-height: 1.5;
 }
@@ -213,6 +238,73 @@
 
 .test-result-actions .styled-btn {
     min-width: 190px;
+}
+
+/* =========================================================
+   GUEST REGISTRATION MESSAGE
+   ========================================================= */
+
+.test-registration-message {
+    margin-top: 24px;
+    padding: 20px;
+
+    border: 1px solid rgba(159, 122, 234, 0.35);
+    border-radius: 14px;
+
+    background: rgba(159, 122, 234, 0.08);
+}
+
+.test-registration-message > p {
+    color: var(--color-text);
+
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+.test-registration-message .passed-message {
+    margin-top: 0;
+    margin-bottom: 12px;
+
+    color: var(--color-success-light);
+
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.test-registration-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.test-registration-actions .styled-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 220px;
+
+    color: white;
+
+    text-decoration: none;
+}
+
+.test-login-link {
+    color: var(--color-primary-soft);
+
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+
+    transition: color 0.2s;
+}
+
+.test-login-link:hover {
+    color: var(--color-primary-light);
 }
 
 /* =========================================================
@@ -252,6 +344,15 @@
     }
 
     .test-result-actions .styled-btn {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .test-registration-message {
+        padding: 18px 14px;
+    }
+
+    .test-registration-actions .styled-btn {
         width: 100%;
         max-width: 320px;
     }

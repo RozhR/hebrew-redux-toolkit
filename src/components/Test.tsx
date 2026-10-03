@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import { useAddStatisticMutation } from "../api/hebrewApi";
 
 import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
 
-import type { CardData, Category, TestAttempt } from "../types";
-
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { unlockNextLevel } from "../store/progressSlice";
 import { addTestAttempt } from "../store/statisticsSlice";
 
-import { useAppDispatch } from "../store/hooks";
-
-import { unlockNextLevel } from "../store/progressSlice";
+import type { CardData, Category, TestAttempt } from "../types";
 
 interface TestProps {
     words: CardData[];
@@ -47,9 +48,15 @@ function generateAnswers(words: CardData[], currentWord: CardData): string[] {
 
 export function Test({ words, category, level, isLastLevel, onBackToCards }: TestProps) {
     const dispatch = useAppDispatch();
+
+    const accessToken = useAppSelector((state) => state.auth.accessToken);
+
+    const [addStatistic] = useAddStatisticMutation();
+
     const [testWords, setTestWords] = useState<CardData[]>(() => shuffleArray(words));
 
     const [currentIndex, setCurrentIndex] = useState(0);
+
     const [correctAnswers, setCorrectAnswers] = useState(0);
 
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -57,6 +64,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
     const [timeLeft, setTimeLeft] = useState(TEST_TIMER_SECONDS);
 
     const [isTimeout, setIsTimeout] = useState(false);
+
     const [isFinished, setIsFinished] = useState(false);
 
     const currentWord = testWords[currentIndex];
@@ -71,28 +79,41 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
         const percent =
             testWords.length > 0 ? Math.round((finalCorrectAnswers / testWords.length) * 100) : 0;
 
-        const attempt: TestAttempt = {
-            percent,
-            correct: finalCorrectAnswers,
-            total: testWords.length,
-            date: new Date().toISOString(),
-        };
+        /*
+         * Прогресс и статистика сохраняются
+         * только для авторизованного пользователя.
+         */
+        if (accessToken) {
+            const attempt: TestAttempt = {
+                percent,
+                correct: finalCorrectAnswers,
+                total: testWords.length,
+                date: new Date().toISOString(),
+            };
 
-        dispatch(
-            addTestAttempt({
-                category,
-                level,
-                attempt,
-            }),
-        );
-
-        if (percent >= PASS_PERCENT) {
             dispatch(
-                unlockNextLevel({
+                addTestAttempt({
                     category,
                     level,
+                    attempt,
                 }),
             );
+
+            if (percent >= PASS_PERCENT) {
+                dispatch(
+                    unlockNextLevel({
+                        category,
+                        level,
+                    }),
+                );
+            }
+
+            void addStatistic({
+                category,
+                level,
+                correct: finalCorrectAnswers,
+                total: testWords.length,
+            });
         }
 
         setIsFinished(true);
@@ -102,11 +123,17 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
         const shuffledWords = shuffleArray(words);
 
         setTestWords(shuffledWords);
+
         setCurrentIndex(0);
+
         setCorrectAnswers(0);
+
         setSelectedAnswer(null);
+
         setTimeLeft(TEST_TIMER_SECONDS);
+
         setIsTimeout(false);
+
         setIsFinished(false);
 
         const firstWord = shuffledWords[0];
@@ -123,6 +150,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
             setTimeLeft((previousTime) => {
                 if (previousTime <= 1) {
                     window.clearInterval(timerId);
+
                     setIsTimeout(true);
 
                     return 0;
@@ -170,15 +198,34 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
                     </p>
 
                     {passed ? (
-                        <p className="test-result-message passed-message">
-                            {isLastLevel
-                                ? "Отличный результат! Вы завершили все уровни этой категории."
-                                : "Отличный результат! Следующий уровень разблокирован."}
-                        </p>
+                        accessToken ? (
+                            <p className="test-result-message passed-message">
+                                {isLastLevel
+                                    ? "Отличный результат! Вы завершили все уровни этой категории."
+                                    : "Отличный результат! Следующий уровень разблокирован."}
+                            </p>
+                        ) : (
+                            <div className="test-registration-message">
+                                <p className="test-result-message passed-message">
+                                    Отличный результат! Вы набрали <strong>{percent}%</strong>.
+                                </p>
+
+                                <p>Для открытия следующего уровня необходима регистрация.</p>
+
+                                <div className="test-registration-actions">
+                                    <Link to="/register" className="styled-btn">
+                                        Зарегистрироваться
+                                    </Link>
+
+                                    <Link to="/login" className="test-login-link">
+                                        Уже есть аккаунт? Войти
+                                    </Link>
+                                </div>
+                            </div>
+                        )
                     ) : (
                         <p className="test-result-message failed-message">
-                            Для открытия следующего уровня необходимо набрать минимум {PASS_PERCENT}
-                            %.
+                            Для прохождения уровня необходимо набрать минимум {PASS_PERCENT}%.
                         </p>
                     )}
 
@@ -215,6 +262,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
 
         if (!nextWord) {
             finishTest(correctAnswers);
+
             return;
         }
 
@@ -223,7 +271,9 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
         setAnswers(generateAnswers(testWords, nextWord));
 
         setSelectedAnswer(null);
+
         setIsTimeout(false);
+
         setTimeLeft(TEST_TIMER_SECONDS);
     };
 

@@ -9,8 +9,6 @@ import { progressReducer } from "./progressSlice";
 import { statisticsReducer } from "./statisticsSlice";
 
 const GRAMMAR_STORAGE_KEY = "grammarWords";
-const STATISTICS_STORAGE_KEY = "testStats";
-const PROGRESS_STORAGE_KEY = "userProgress";
 const GRAMMAR_TEST_STATISTICS_STORAGE_KEY = "grammarTestStats";
 
 export const store = configureStore({
@@ -31,10 +29,6 @@ store.subscribe(() => {
     const state = store.getState();
 
     localStorage.setItem(GRAMMAR_STORAGE_KEY, JSON.stringify(state.grammar.words));
-
-    localStorage.setItem(STATISTICS_STORAGE_KEY, JSON.stringify(state.statistics));
-
-    localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(state.progress));
 
     localStorage.setItem(
         GRAMMAR_TEST_STATISTICS_STORAGE_KEY,

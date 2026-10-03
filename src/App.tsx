@@ -10,6 +10,9 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Profile from "./components/auth/Profile";
 
+import AuthProgressSync from "./components/auth/AuthProgressSync";
+import AuthStatisticsSync from "./components/auth/AuthStatisticsSync";
+
 import "./App.css";
 
 const Grammar = lazy(() => import("./components/Grammar"));
@@ -19,6 +22,9 @@ function App() {
     return (
         <>
             <Navbar />
+
+            <AuthProgressSync />
+            <AuthStatisticsSync />
 
             <Routes>
                 <Route path="/" element={<Home />} />

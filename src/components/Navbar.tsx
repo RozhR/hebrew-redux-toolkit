@@ -5,6 +5,11 @@ import { hebrewApi, useGetCurrentUserQuery } from "../api/hebrewApi";
 import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
 import { clearAccessToken } from "../store/authSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+
+import { resetProgress } from "../store/progressSlice";
+
+import { clearStatistics } from "../store/statisticsSlice";
+
 import type { Category } from "../types";
 
 function Navbar() {
@@ -27,6 +32,10 @@ function Navbar() {
 
     const handleLogout = () => {
         dispatch(clearAccessToken());
+
+        dispatch(resetProgress());
+
+        dispatch(clearStatistics());
 
         dispatch(hebrewApi.util.resetApiState());
 
