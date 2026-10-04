@@ -1,4 +1,4 @@
-import { useClearStatisticsMutation } from "../api/hebrewApi";
+import { useClearGrammarStatisticsMutation, useClearStatisticsMutation } from "../api/hebrewApi";
 
 import { CATEGORIES, CATEGORY_CONFIG } from "../config/categories";
 
@@ -17,6 +17,9 @@ function Statistics() {
 
     const [clearStatisticsOnServer, { isLoading: isClearingStatistics }] =
         useClearStatisticsMutation();
+
+    const [clearGrammarStatisticsOnServer, { isLoading: isClearingGrammarStatistics }] =
+        useClearGrammarStatisticsMutation();
 
     const stats = useAppSelector((state) => state.statistics);
 
@@ -39,8 +42,21 @@ function Statistics() {
         }
     };
 
-    const handleClearGrammarStatistics = () => {
-        dispatch(clearGrammarTestStatistics());
+    const handleClearGrammarStatistics = async () => {
+        if (authStatus !== "authenticated") {
+            dispatch(clearGrammarTestStatistics());
+
+            return;
+        }
+
+        try {
+            await clearGrammarStatisticsOnServer().unwrap();
+
+            dispatch(clearGrammarTestStatistics());
+        } catch {
+            // Если сервер не удалил данные,
+            // Redux тоже не очищаем.
+        }
     };
 
     const hasStatistics = CATEGORIES.some(
@@ -237,8 +253,9 @@ function Statistics() {
                     type="button"
                     className="styled-btn clear-statistics-btn"
                     onClick={handleClearGrammarStatistics}
+                    disabled={isClearingGrammarStatistics}
                 >
-                    Очистить статистику грамматики
+                    {isClearingGrammarStatistics ? "Очистка..." : "Очистить статистику грамматики"}
                 </button>
             )}
         </div>

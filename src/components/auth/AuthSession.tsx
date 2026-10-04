@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 
 import { useGetCurrentUserQuery } from "../../api/hebrewApi";
+
 import { setAuthenticated, setGuest } from "../../store/authSlice";
+
+import { clearGrammar } from "../../store/grammarSlice";
+
 import { useAppDispatch } from "../../store/hooks";
 
 function AuthSession() {
@@ -18,6 +22,8 @@ function AuthSession() {
 
         if (isError) {
             dispatch(setGuest());
+
+            dispatch(clearGrammar());
         }
     }, [dispatch, isError, isSuccess, user]);
 

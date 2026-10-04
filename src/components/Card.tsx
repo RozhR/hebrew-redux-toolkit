@@ -7,9 +7,9 @@ import {
     useState,
 } from "react";
 
-import { addWord, removeWord } from "../store/grammarSlice";
+import { useGrammarWordsActions } from "../hooks/useGrammarWordsActions";
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppSelector } from "../store/hooks";
 
 import type { CardWithId, Category } from "../types";
 
@@ -28,7 +28,7 @@ function Card({ card, category }: CardProps) {
 
     const [isTouchDevice, setIsTouchDevice] = useState(false);
 
-    const dispatch = useAppDispatch();
+    const { addGrammarWord, removeGrammarWord } = useGrammarWordsActions();
 
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -134,9 +134,9 @@ function Card({ card, category }: CardProps) {
             setIsPressing(false);
 
             if (pressedInGrammar.current) {
-                dispatch(removeWord(grammarWord));
+                void removeGrammarWord(grammarWord);
             } else {
-                dispatch(addWord(grammarWord));
+                void addGrammarWord(grammarWord);
             }
 
             if ("vibrate" in navigator) {
@@ -180,7 +180,7 @@ function Card({ card, category }: CardProps) {
     const handleRemoveFromGrammar = (event: MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
 
-        dispatch(removeWord(grammarWord));
+        void removeGrammarWord(grammarWord);
     };
 
     const handleIndicatorTouchStart = (event: TouchEvent<HTMLButtonElement>) => {

@@ -7,6 +7,8 @@ import LearningPage from "./components/LearningPage";
 import Navbar from "./components/Navbar";
 import Statistics from "./components/Statistics";
 
+import AuthGrammarStatisticsSync from "./components/auth/AuthGrammarStatisticsSync";
+import AuthGrammarWordsSync from "./components/auth/AuthGrammarWordsSync";
 import AuthProgressSync from "./components/auth/AuthProgressSync";
 import AuthSession from "./components/auth/AuthSession";
 import AuthStatisticsSync from "./components/auth/AuthStatisticsSync";
@@ -30,6 +32,10 @@ function App() {
             <AuthProgressSync />
 
             <AuthStatisticsSync />
+
+            <AuthGrammarStatisticsSync />
+
+            <AuthGrammarWordsSync />
 
             <Routes>
                 <Route path="/" element={<Home />} />

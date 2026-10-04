@@ -8,9 +8,6 @@ import { grammarTestStatisticsReducer } from "./grammarTestStatisticsSlice";
 import { progressReducer } from "./progressSlice";
 import { statisticsReducer } from "./statisticsSlice";
 
-const GRAMMAR_STORAGE_KEY = "grammarWords";
-const GRAMMAR_TEST_STATISTICS_STORAGE_KEY = "grammarTestStats";
-
 export const store = configureStore({
     reducer: {
         auth: authReducer,
@@ -25,16 +22,6 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(hebrewApi.middleware),
 });
 
-store.subscribe(() => {
-    const state = store.getState();
-
-    localStorage.setItem(GRAMMAR_STORAGE_KEY, JSON.stringify(state.grammar.words));
-
-    localStorage.setItem(
-        GRAMMAR_TEST_STATISTICS_STORAGE_KEY,
-        JSON.stringify(state.grammarTestStatistics),
-    );
-});
-
 export type RootState = ReturnType<typeof store.getState>;
+
 export type AppDispatch = typeof store.dispatch;

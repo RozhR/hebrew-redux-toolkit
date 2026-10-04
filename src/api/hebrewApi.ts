@@ -2,6 +2,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import type { Category, TestStats } from "../types";
 
+import type { GrammarTestAttempt, GrammarTestSection, GrammarWordRef } from "../types/grammar";
+
 export interface User {
     id: number;
     email: string;
@@ -33,17 +35,6 @@ export interface UserProgress {
     adverbs: number;
 }
 
-export interface UpdateProgressRequest {
-    category: Category;
-    unlockedLevel: number;
-}
-
-export interface UpdateProgressResponse {
-    category: Category;
-    unlockedLevel: number;
-    updatedAt: string;
-}
-
 export interface AddStatisticRequest {
     category: Category;
     level: number;
@@ -61,6 +52,16 @@ export interface SavedStatistic {
     date: string;
 }
 
+export interface AddGrammarStatisticRequest {
+    correct: number;
+    total: number;
+    sections: GrammarTestSection[];
+}
+
+export interface SavedGrammarStatistic extends GrammarTestAttempt {
+    id: number;
+}
+
 export const hebrewApi = createApi({
     reducerPath: "hebrewApi",
 
@@ -69,7 +70,7 @@ export const hebrewApi = createApi({
         credentials: "include",
     }),
 
-    tagTypes: ["User", "Progress", "Statistics"],
+    tagTypes: ["User", "Progress", "Statistics", "GrammarStatistics", "GrammarWords"],
 
     endpoints: (builder) => ({
         register: builder.mutation<User, RegisterRequest>({
@@ -91,7 +92,13 @@ export const hebrewApi = createApi({
 
             transformResponse: (response: { data: AuthResponse }) => response.data,
 
-            invalidatesTags: ["User", "Progress", "Statistics"],
+            invalidatesTags: [
+                "User",
+                "Progress",
+                "Statistics",
+                "GrammarStatistics",
+                "GrammarWords",
+            ],
         }),
 
         logout: builder.mutation<void, void>({
@@ -117,31 +124,6 @@ export const hebrewApi = createApi({
             transformResponse: (response: { data: UserProgress }) => response.data,
 
             providesTags: ["Progress"],
-        }),
-
-        updateProgress: builder.mutation<UpdateProgressResponse, UpdateProgressRequest>({
-            query: ({ category, unlockedLevel }) => ({
-                url: `/progress/${category}`,
-                method: "PUT",
-
-                body: {
-                    unlockedLevel,
-                },
-            }),
-
-            transformResponse: (response: {
-                data: {
-                    category: Category;
-                    unlocked_level: number;
-                    updated_at: string;
-                };
-            }) => ({
-                category: response.data.category,
-                unlockedLevel: response.data.unlocked_level,
-                updatedAt: response.data.updated_at,
-            }),
-
-            invalidatesTags: ["Progress"],
         }),
 
         getStatistics: builder.query<TestStats, void>({
@@ -174,6 +156,79 @@ export const hebrewApi = createApi({
 
             invalidatesTags: ["Statistics"],
         }),
+
+        getGrammarStatistics: builder.query<GrammarTestAttempt[], void>({
+            query: () => "/statistics/grammar",
+
+            transformResponse: (response: { data: GrammarTestAttempt[] }) => response.data,
+
+            providesTags: ["GrammarStatistics"],
+        }),
+
+        addGrammarStatistic: builder.mutation<SavedGrammarStatistic, AddGrammarStatisticRequest>({
+            query: (body) => ({
+                url: "/statistics/grammar",
+                method: "POST",
+                body,
+            }),
+
+            transformResponse: (response: { data: SavedGrammarStatistic }) => response.data,
+
+            invalidatesTags: ["GrammarStatistics"],
+        }),
+
+        clearGrammarStatistics: builder.mutation<void, void>({
+            query: () => ({
+                url: "/statistics/grammar",
+                method: "DELETE",
+            }),
+
+            transformResponse: () => undefined,
+
+            invalidatesTags: ["GrammarStatistics"],
+        }),
+
+        getGrammarWords: builder.query<GrammarWordRef[], void>({
+            query: () => "/grammar-words",
+
+            transformResponse: (response: { data: GrammarWordRef[] }) => response.data,
+
+            providesTags: ["GrammarWords"],
+        }),
+
+        addGrammarWord: builder.mutation<GrammarWordRef, GrammarWordRef>({
+            query: (body) => ({
+                url: "/grammar-words",
+                method: "POST",
+                body,
+            }),
+
+            transformResponse: (response: { data: GrammarWordRef }) => response.data,
+
+            invalidatesTags: ["GrammarWords"],
+        }),
+
+        removeGrammarWord: builder.mutation<void, GrammarWordRef>({
+            query: ({ category, id }) => ({
+                url: `/grammar-words/${category}/${id}`,
+                method: "DELETE",
+            }),
+
+            transformResponse: () => undefined,
+
+            invalidatesTags: ["GrammarWords"],
+        }),
+
+        clearGrammarWords: builder.mutation<void, void>({
+            query: () => ({
+                url: "/grammar-words",
+                method: "DELETE",
+            }),
+
+            transformResponse: () => undefined,
+
+            invalidatesTags: ["GrammarWords"],
+        }),
     }),
 });
 
@@ -181,10 +236,21 @@ export const {
     useRegisterMutation,
     useLoginMutation,
     useLogoutMutation,
+
     useGetCurrentUserQuery,
+
     useGetProgressQuery,
-    useUpdateProgressMutation,
+
     useGetStatisticsQuery,
     useAddStatisticMutation,
     useClearStatisticsMutation,
+
+    useGetGrammarStatisticsQuery,
+    useAddGrammarStatisticMutation,
+    useClearGrammarStatisticsMutation,
+
+    useGetGrammarWordsQuery,
+    useAddGrammarWordMutation,
+    useRemoveGrammarWordMutation,
+    useClearGrammarWordsMutation,
 } = hebrewApi;

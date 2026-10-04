@@ -12,6 +12,8 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import { resetProgress } from "../store/progressSlice";
 import { clearStatistics } from "../store/statisticsSlice";
+import { clearGrammarTestStatistics } from "../store/grammarTestStatisticsSlice";
+import { clearGrammar } from "../store/grammarSlice";
 
 import type { Category } from "../types";
 
@@ -49,6 +51,10 @@ function Navbar() {
 
             dispatch(clearStatistics());
 
+            dispatch(clearGrammarTestStatistics());
+
+            dispatch(clearGrammar());
+
             dispatch(hebrewApi.util.resetApiState());
 
             closeMenu();
@@ -56,7 +62,7 @@ function Navbar() {
             navigate("/");
         } catch {
             // Если logout на сервере не прошёл,
-            // локальную сессию не очищаем.
+            // состояние пользователя не очищаем.
         }
     };
 

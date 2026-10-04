@@ -3,11 +3,16 @@ import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { useLoginMutation } from "../../api/hebrewApi";
+
 import { setAuthenticated } from "../../store/authSlice";
+
+import { clearGrammar } from "../../store/grammarSlice";
+
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 function Login() {
     const dispatch = useAppDispatch();
+
     const navigate = useNavigate();
 
     const authStatus = useAppSelector((state) => state.auth.status);
@@ -41,11 +46,21 @@ function Login() {
                 password,
             }).unwrap();
 
+            /*
+             * Если гость успел
+             * выбрать слова,
+             * они не должны
+             * смешиваться со
+             * словами аккаунта.
+             */
+            dispatch(clearGrammar());
+
             dispatch(setAuthenticated());
 
             navigate("/");
         } catch {
-            // Ошибка доступна через RTK Query error.
+            // Ошибка доступна
+            // через RTK Query.
         }
     };
 

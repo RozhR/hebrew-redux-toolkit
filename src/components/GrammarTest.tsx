@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import { useAddGrammarStatisticMutation } from "../api/hebrewApi";
 
 import { getVerbGrammarFromApi } from "../api/verbGrammar";
 
 import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
 
-import { addGrammarTestAttempt } from "../store/grammarTestStatisticsSlice";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppSelector } from "../store/hooks";
 
 import type { GrammarTestSection, VerbGrammar } from "../types/grammar";
 
@@ -19,9 +20,13 @@ type QuestionLimit = "10" | "20" | "all";
 function GrammarTest() {
     const navigate = useNavigate();
 
-    const dispatch = useAppDispatch();
-
     const words = useAppSelector((state) => state.grammar.words);
+
+    const authStatus = useAppSelector((state) => state.auth.status);
+
+    const isAuthenticated = authStatus === "authenticated";
+
+    const [addGrammarStatistic] = useAddGrammarStatisticMutation();
 
     const verbWords = words.filter((word) => word.category === "verbs");
 
@@ -124,13 +129,17 @@ function GrammarTest() {
         setQuestions(nextQuestions);
 
         setCurrentIndex(0);
+
         setCorrectAnswers(0);
+
         setSelectedAnswer(null);
 
         setTimeLeft(TEST_TIMER_SECONDS);
 
         setIsTimeout(false);
+
         setIsFinished(false);
+
         setIsStarted(true);
     };
 
@@ -171,18 +180,13 @@ function GrammarTest() {
     };
 
     const finishTest = () => {
-        const percent =
-            questions.length > 0 ? Math.round((correctAnswers / questions.length) * 100) : 0;
-
-        dispatch(
-            addGrammarTestAttempt({
-                percent,
+        if (isAuthenticated) {
+            void addGrammarStatistic({
                 correct: correctAnswers,
                 total: questions.length,
-                date: new Date().toISOString(),
                 sections: selectedSections,
-            }),
-        );
+            });
+        }
 
         setIsFinished(true);
     };
@@ -348,6 +352,25 @@ function GrammarTest() {
                         <strong>{questions.length}</strong>
                     </p>
 
+                    {!isAuthenticated && (
+                        <div className="test-registration-message">
+                            <p>
+                                Чтобы сохранять статистику грамматических тестов, войдите в аккаунт
+                                или зарегистрируйтесь.
+                            </p>
+
+                            <div className="test-registration-actions">
+                                <Link to="/register" className="styled-btn">
+                                    Зарегистрироваться
+                                </Link>
+
+                                <Link to="/login" className="test-login-link">
+                                    Войти
+                                </Link>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="test-result-actions">
                         <button type="button" className="styled-btn" onClick={startTest}>
                             Пройти ещё раз
@@ -358,6 +381,7 @@ function GrammarTest() {
                             className="styled-btn"
                             onClick={() => {
                                 setIsStarted(false);
+
                                 setIsFinished(false);
                             }}
                         >

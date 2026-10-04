@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
+
 import { Link } from "react-router-dom";
-
-import GrammarCard from "./grammar/GrammarCard";
-
-import { AdjectiveDetails, AdverbDetails, VerbDetails } from "./grammar/GrammarDetails";
-
-import { getVerbGrammarFromApi } from "../api/verbGrammar";
 
 import { getAdjectiveGrammarFromApi } from "../api/adjectiveGrammar";
 
 import { getAdverbGrammarFromApi } from "../api/adverbGrammar";
 
-import { clearGrammar, removeWord } from "../store/grammarSlice";
+import { getVerbGrammarFromApi } from "../api/verbGrammar";
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useGrammarWordsActions } from "../hooks/useGrammarWordsActions";
+
+import { useAppSelector } from "../store/hooks";
 
 import type {
     AdjectiveGrammar,
@@ -22,14 +19,18 @@ import type {
     VerbGrammar,
 } from "../types/grammar";
 
+import GrammarCard from "./grammar/GrammarCard";
+
+import { AdjectiveDetails, AdverbDetails, VerbDetails } from "./grammar/GrammarDetails";
+
 function getWordKey(word: GrammarWordRef): string {
     return `${word.category}-${word.id}`;
 }
 
 function Grammar() {
-    const dispatch = useAppDispatch();
-
     const words = useAppSelector((state) => state.grammar.words);
+
+    const { removeGrammarWord, clearAllGrammarWords } = useGrammarWordsActions();
 
     const count = words.length;
 
@@ -221,14 +222,14 @@ function Grammar() {
         });
     };
 
-    const handleClearGrammar = () => {
+    const handleClearGrammar = async () => {
         const confirmed = window.confirm("Удалить все выбранные слова из грамматики?");
 
         if (!confirmed) {
             return;
         }
 
-        dispatch(clearGrammar());
+        await clearAllGrammarWords();
 
         setExpandedWords(new Set());
     };
@@ -253,7 +254,9 @@ function Grammar() {
                         <button
                             type="button"
                             className="grammar-clear-btn"
-                            onClick={handleClearGrammar}
+                            onClick={() => {
+                                void handleClearGrammar();
+                            }}
                         >
                             Очистить всё
                         </button>
@@ -296,7 +299,9 @@ function Grammar() {
                                         level={grammar.base.level}
                                         expanded={expandedWords.has(key)}
                                         onToggle={() => toggleWord(word)}
-                                        onRemove={() => dispatch(removeWord(word))}
+                                        onRemove={() => {
+                                            void removeGrammarWord(word);
+                                        }}
                                     >
                                         <VerbDetails grammar={grammar} />
                                     </GrammarCard>
@@ -334,7 +339,9 @@ function Grammar() {
                                         level={grammar.base.level}
                                         expanded={expandedWords.has(key)}
                                         onToggle={() => toggleWord(word)}
-                                        onRemove={() => dispatch(removeWord(word))}
+                                        onRemove={() => {
+                                            void removeGrammarWord(word);
+                                        }}
                                     >
                                         <AdjectiveDetails grammar={grammar} />
                                     </GrammarCard>
@@ -372,7 +379,9 @@ function Grammar() {
                                         level={grammar.base.level}
                                         expanded={expandedWords.has(key)}
                                         onToggle={() => toggleWord(word)}
-                                        onRemove={() => dispatch(removeWord(word))}
+                                        onRemove={() => {
+                                            void removeGrammarWord(word);
+                                        }}
                                     >
                                         <AdverbDetails grammar={grammar} />
                                     </GrammarCard>
