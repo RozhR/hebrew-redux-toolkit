@@ -3,14 +3,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { getAdjectiveGrammarFromApi } from "../api/adjectiveGrammar";
-
 import { getAdverbGrammarFromApi } from "../api/adverbGrammar";
-
 import { getVerbGrammarFromApi } from "../api/verbGrammar";
 
+import { useGrammarWords } from "../hooks/useGrammarWords";
 import { useGrammarWordsActions } from "../hooks/useGrammarWordsActions";
-
-import { useAppSelector } from "../store/hooks";
 
 import type {
     AdjectiveGrammar,
@@ -28,7 +25,7 @@ function getWordKey(word: GrammarWordRef): string {
 }
 
 function Grammar() {
-    const words = useAppSelector((state) => state.grammar.words);
+    const { words, isLoading: isWordsLoading, isError: isWordsError } = useGrammarWords();
 
     const { removeGrammarWord, clearAllGrammarWords } = useGrammarWordsActions();
 
@@ -74,7 +71,6 @@ function Grammar() {
         async function loadVerbGrammars() {
             try {
                 setVerbsLoading(true);
-
                 setVerbsError(null);
 
                 const entries = await Promise.all(
@@ -122,7 +118,6 @@ function Grammar() {
         async function loadAdjectiveGrammars() {
             try {
                 setAdjectivesLoading(true);
-
                 setAdjectivesError(null);
 
                 const entries = await Promise.all(
@@ -170,7 +165,6 @@ function Grammar() {
         async function loadAdverbGrammars() {
             try {
                 setAdverbsLoading(true);
-
                 setAdverbsError(null);
 
                 const entries = await Promise.all(
@@ -233,6 +227,32 @@ function Grammar() {
 
         setExpandedWords(new Set());
     };
+
+    if (isWordsLoading) {
+        return (
+            <main className="grammar-page">
+                <h2 className="grammar-page-title">Грамматика</h2>
+
+                <div className="grammar-empty">
+                    <h3>Загрузка выбранных слов...</h3>
+                </div>
+            </main>
+        );
+    }
+
+    if (isWordsError) {
+        return (
+            <main className="grammar-page">
+                <h2 className="grammar-page-title">Грамматика</h2>
+
+                <div className="grammar-empty">
+                    <h3>Ошибка загрузки</h3>
+
+                    <p>Не удалось загрузить выбранные слова.</p>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="grammar-page">

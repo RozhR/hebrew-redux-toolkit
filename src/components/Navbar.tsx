@@ -6,28 +6,30 @@ import { hebrewApi, useGetCurrentUserQuery, useLogoutMutation } from "../api/heb
 
 import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
 
+import { useGrammarWords } from "../hooks/useGrammarWords";
+import { useUserProgress } from "../hooks/useUserProgress";
+
 import { setGuest } from "../store/authSlice";
+import { clearGuestGrammar } from "../store/guestGrammarSlice";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-
-import { resetProgress } from "../store/progressSlice";
-import { clearStatistics } from "../store/statisticsSlice";
-import { clearGrammarTestStatistics } from "../store/grammarTestStatisticsSlice";
-import { clearGrammar } from "../store/grammarSlice";
 
 import type { Category } from "../types";
 
 function Navbar() {
     const dispatch = useAppDispatch();
+
     const navigate = useNavigate();
 
     const [openCategory, setOpenCategory] = useState<Category | null>(null);
 
-    const count = useAppSelector((state) => state.grammar.words.length);
-
-    const progress = useAppSelector((state) => state.progress);
-
     const authStatus = useAppSelector((state) => state.auth.status);
+
+    const { words } = useGrammarWords();
+
+    const { progress } = useUserProgress();
+
+    const count = words.length;
 
     const isAuthenticated = authStatus === "authenticated";
 
@@ -47,22 +49,35 @@ function Navbar() {
 
             dispatch(setGuest());
 
-            dispatch(resetProgress());
+            /*
+             * После выхода гостевая
+             * грамматика должна быть пустой.
+             */
+            dispatch(clearGuestGrammar());
 
-            dispatch(clearStatistics());
-
-            dispatch(clearGrammarTestStatistics());
-
-            dispatch(clearGrammar());
-
+            /*
+             * Удаляем серверные данные
+             * текущего пользователя
+             * из RTK Query cache:
+             *
+             * User
+             * Progress
+             * Statistics
+             * GrammarStatistics
+             * GrammarWords
+             */
             dispatch(hebrewApi.util.resetApiState());
 
             closeMenu();
 
             navigate("/");
         } catch {
-            // Если logout на сервере не прошёл,
-            // состояние пользователя не очищаем.
+            /*
+             * Если logout на сервере
+             * не прошёл, локальное
+             * состояние пользователя
+             * не меняем.
+             */
         }
     };
 

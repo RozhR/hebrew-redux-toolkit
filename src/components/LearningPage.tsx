@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
+
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+
+import { getVocabulary } from "../api/vocabulary";
+
+import { CATEGORY_CONFIG, isCategory } from "../config/categories";
+
+import { useUserProgress } from "../hooks/useUserProgress";
+
+import type { CardWithId } from "../types";
 
 import CardList from "./CardList";
 import { Test } from "./Test";
-
-import { getVocabulary } from "../api/vocabulary";
-import { CATEGORY_CONFIG, isCategory } from "../config/categories";
-
-import { useAppSelector } from "../store/hooks";
-
-import type { CardWithId } from "../types";
 
 type LearningPageProps = {
     testMode?: boolean;
@@ -18,7 +20,7 @@ type LearningPageProps = {
 function LearningPage({ testMode = false }: LearningPageProps) {
     const navigate = useNavigate();
 
-    const progress = useAppSelector((state) => state.progress);
+    const { progress, isProgressLoading } = useUserProgress();
 
     const { category: categoryParam, level: levelParam } = useParams();
 
@@ -27,7 +29,9 @@ function LearningPage({ testMode = false }: LearningPageProps) {
     const level = Number(levelParam);
 
     const [cards, setCards] = useState<CardWithId[]>([]);
+
     const [isLoading, setIsLoading] = useState(true);
+
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -36,6 +40,7 @@ function LearningPage({ testMode = false }: LearningPageProps) {
         }
 
         const currentCategory = category;
+
         const currentLevel = level;
 
         let isActive = true;
@@ -43,6 +48,7 @@ function LearningPage({ testMode = false }: LearningPageProps) {
         async function loadCards() {
             try {
                 setIsLoading(true);
+
                 setError(null);
 
                 const loadedCards = await getVocabulary(currentCategory, currentLevel);
@@ -82,6 +88,18 @@ function LearningPage({ testMode = false }: LearningPageProps) {
 
     if (!Number.isInteger(level) || level < 1 || level > maxLevel) {
         return <Navigate to={`/${category}/1`} replace />;
+    }
+
+    if (isProgressLoading) {
+        return (
+            <>
+                <h2 className="level-title">
+                    {categoryConfig.title} — Уровень {level}
+                </h2>
+
+                <p>Загрузка прогресса...</p>
+            </>
+        );
     }
 
     const highestUnlockedLevel = Math.min(progress[category], maxLevel);

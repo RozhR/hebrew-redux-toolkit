@@ -6,7 +6,7 @@ import { useLoginMutation } from "../../api/hebrewApi";
 
 import { setAuthenticated } from "../../store/authSlice";
 
-import { clearGrammar } from "../../store/grammarSlice";
+import { clearGuestGrammar } from "../../store/guestGrammarSlice";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
@@ -47,13 +47,11 @@ function Login() {
             }).unwrap();
 
             /*
-             * Если гость успел
-             * выбрать слова,
-             * они не должны
-             * смешиваться со
-             * словами аккаунта.
+             * Гостевые слова
+             * не переносим
+             * в аккаунт.
              */
-            dispatch(clearGrammar());
+            dispatch(clearGuestGrammar());
 
             dispatch(setAuthenticated());
 

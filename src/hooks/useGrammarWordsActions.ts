@@ -4,7 +4,11 @@ import {
     useRemoveGrammarWordMutation,
 } from "../api/hebrewApi";
 
-import { addWord, clearGrammar, removeWord } from "../store/grammarSlice";
+import {
+    addGuestGrammarWord,
+    clearGuestGrammar,
+    removeGuestGrammarWord,
+} from "../store/guestGrammarSlice";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
@@ -15,8 +19,6 @@ export function useGrammarWordsActions() {
 
     const authStatus = useAppSelector((state) => state.auth.status);
 
-    const words = useAppSelector((state) => state.grammar.words);
-
     const [addGrammarWordOnServer] = useAddGrammarWordMutation();
 
     const [removeGrammarWordOnServer] = useRemoveGrammarWordMutation();
@@ -26,48 +28,65 @@ export function useGrammarWordsActions() {
     const isAuthenticated = authStatus === "authenticated";
 
     const addGrammarWord = async (word: GrammarWordRef) => {
-        dispatch(addWord(word));
-
         if (!isAuthenticated) {
+            dispatch(addGuestGrammarWord(word));
+
             return;
         }
 
         try {
             await addGrammarWordOnServer(word).unwrap();
         } catch {
-            dispatch(removeWord(word));
+            /*
+             * Ничего откатывать
+             * не нужно.
+             *
+             * Если сервер не
+             * сохранил слово,
+             * RTK Query cache
+             * останется
+             * источником истины.
+             */
         }
     };
 
     const removeGrammarWord = async (word: GrammarWordRef) => {
-        dispatch(removeWord(word));
-
         if (!isAuthenticated) {
+            dispatch(removeGuestGrammarWord(word));
+
             return;
         }
 
         try {
             await removeGrammarWordOnServer(word).unwrap();
         } catch {
-            dispatch(addWord(word));
+            /*
+             * Серверное состояние
+             * не изменилось —
+             * ничего вручную
+             * восстанавливать
+             * не требуется.
+             */
         }
     };
 
     const clearAllGrammarWords = async () => {
-        const previousWords = [...words];
-
-        dispatch(clearGrammar());
-
         if (!isAuthenticated) {
+            dispatch(clearGuestGrammar());
+
             return;
         }
 
         try {
             await clearGrammarWordsOnServer().unwrap();
         } catch {
-            previousWords.forEach((word) => {
-                dispatch(addWord(word));
-            });
+            /*
+             * Если удаление
+             * на сервере
+             * не прошло,
+             * RTK Query оставит
+             * текущие слова.
+             */
         }
     };
 

@@ -6,12 +6,9 @@ import { useAddStatisticMutation } from "../api/hebrewApi";
 
 import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppSelector } from "../store/hooks";
 
-import { unlockNextLevel } from "../store/progressSlice";
-import { addTestAttempt } from "../store/statisticsSlice";
-
-import type { CardData, Category, TestAttempt } from "../types";
+import type { CardData, Category } from "../types";
 
 interface TestProps {
     words: CardData[];
@@ -49,8 +46,6 @@ function generateAnswers(words: CardData[], currentWord: CardData): string[] {
 }
 
 export function Test({ words, category, level, isLastLevel, onBackToCards }: TestProps) {
-    const dispatch = useAppDispatch();
-
     const authStatus = useAppSelector((state) => state.auth.status);
 
     const isAuthenticated = authStatus === "authenticated";
@@ -80,34 +75,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
     });
 
     const finishTest = (finalCorrectAnswers: number) => {
-        const percent =
-            testWords.length > 0 ? Math.round((finalCorrectAnswers / testWords.length) * 100) : 0;
-
         if (isAuthenticated) {
-            const attempt: TestAttempt = {
-                percent,
-                correct: finalCorrectAnswers,
-                total: testWords.length,
-                date: new Date().toISOString(),
-            };
-
-            dispatch(
-                addTestAttempt({
-                    category,
-                    level,
-                    attempt,
-                }),
-            );
-
-            if (percent >= PASS_PERCENT) {
-                dispatch(
-                    unlockNextLevel({
-                        category,
-                        level,
-                    }),
-                );
-            }
-
             void addStatistic({
                 category,
                 level,
@@ -225,7 +193,8 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
                         )
                     ) : (
                         <p className="test-result-message failed-message">
-                            Для прохождения уровня необходимо набрать минимум {PASS_PERCENT}%.
+                            Для прохождения уровня необходимо набрать минимум {PASS_PERCENT}
+                            %.
                         </p>
                     )}
 

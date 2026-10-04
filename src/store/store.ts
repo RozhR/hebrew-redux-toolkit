@@ -3,18 +3,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import { hebrewApi } from "../api/hebrewApi";
 
 import { authReducer } from "./authSlice";
-import { grammarReducer } from "./grammarSlice";
-import { grammarTestStatisticsReducer } from "./grammarTestStatisticsSlice";
-import { progressReducer } from "./progressSlice";
-import { statisticsReducer } from "./statisticsSlice";
+import { guestGrammarReducer } from "./guestGrammarSlice";
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
-        grammar: grammarReducer,
-        statistics: statisticsReducer,
-        progress: progressReducer,
-        grammarTestStatistics: grammarTestStatisticsReducer,
+
+        guestGrammar: guestGrammarReducer,
 
         [hebrewApi.reducerPath]: hebrewApi.reducer,
     },

@@ -1,19 +1,33 @@
-import { useClearGrammarStatisticsMutation, useClearStatisticsMutation } from "../api/hebrewApi";
+import {
+    useClearGrammarStatisticsMutation,
+    useClearStatisticsMutation,
+    useGetGrammarStatisticsQuery,
+    useGetStatisticsQuery,
+} from "../api/hebrewApi";
 
 import { CATEGORIES, CATEGORY_CONFIG } from "../config/categories";
 
-import { clearGrammarTestStatistics } from "../store/grammarTestStatisticsSlice";
+import { useAppSelector } from "../store/hooks";
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-
-import { clearStatistics } from "../store/statisticsSlice";
+import type { TestStats } from "../types";
 
 import { SECTION_TITLES } from "./grammar/grammarTestUtils";
 
-function Statistics() {
-    const dispatch = useAppDispatch();
+const EMPTY_STATISTICS: TestStats = {};
 
+function Statistics() {
     const authStatus = useAppSelector((state) => state.auth.status);
+
+    const isAuthenticated = authStatus === "authenticated";
+
+    const { data: statistics, isLoading: isLoadingStatistics } = useGetStatisticsQuery(undefined, {
+        skip: !isAuthenticated,
+    });
+
+    const { data: grammarStatistics, isLoading: isLoadingGrammarStatistics } =
+        useGetGrammarStatisticsQuery(undefined, {
+            skip: !isAuthenticated,
+        });
 
     const [clearStatisticsOnServer, { isLoading: isClearingStatistics }] =
         useClearStatisticsMutation();
@@ -21,41 +35,33 @@ function Statistics() {
     const [clearGrammarStatisticsOnServer, { isLoading: isClearingGrammarStatistics }] =
         useClearGrammarStatisticsMutation();
 
-    const stats = useAppSelector((state) => state.statistics);
+    const stats = statistics ?? EMPTY_STATISTICS;
 
-    const grammarTestStats = useAppSelector((state) => state.grammarTestStatistics);
+    const grammarTestStats = grammarStatistics ?? [];
 
     const handleClearStatistics = async () => {
-        if (authStatus !== "authenticated") {
-            dispatch(clearStatistics());
-
+        if (!isAuthenticated) {
             return;
         }
 
         try {
             await clearStatisticsOnServer().unwrap();
-
-            dispatch(clearStatistics());
         } catch {
-            // Если сервер не очистил данные,
-            // локальное состояние оставляем.
+            // RTK Query оставит старые данные,
+            // если сервер не выполнил удаление.
         }
     };
 
     const handleClearGrammarStatistics = async () => {
-        if (authStatus !== "authenticated") {
-            dispatch(clearGrammarTestStatistics());
-
+        if (!isAuthenticated) {
             return;
         }
 
         try {
             await clearGrammarStatisticsOnServer().unwrap();
-
-            dispatch(clearGrammarTestStatistics());
         } catch {
-            // Если сервер не удалил данные,
-            // Redux тоже не очищаем.
+            // RTK Query оставит старые данные,
+            // если сервер не выполнил удаление.
         }
     };
 
@@ -83,6 +89,18 @@ function Statistics() {
     const latestGrammarAttempt = hasGrammarStatistics
         ? grammarTestStats[grammarTestStats.length - 1]
         : null;
+
+    const isLoading = isAuthenticated && (isLoadingStatistics || isLoadingGrammarStatistics);
+
+    if (isLoading) {
+        return (
+            <div className="statistics-page">
+                <h2 className="statistics-title">Статистика</h2>
+
+                <p className="statistics-empty">Загрузка статистики...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="statistics-page">
@@ -175,7 +193,9 @@ function Statistics() {
                 <button
                     type="button"
                     className="styled-btn clear-statistics-btn"
-                    onClick={handleClearStatistics}
+                    onClick={() => {
+                        void handleClearStatistics();
+                    }}
                     disabled={isClearingStatistics}
                 >
                     {isClearingStatistics ? "Очистка..." : "Очистить статистику тестов"}
@@ -252,7 +272,9 @@ function Statistics() {
                 <button
                     type="button"
                     className="styled-btn clear-statistics-btn"
-                    onClick={handleClearGrammarStatistics}
+                    onClick={() => {
+                        void handleClearGrammarStatistics();
+                    }}
                     disabled={isClearingGrammarStatistics}
                 >
                     {isClearingGrammarStatistics ? "Очистка..." : "Очистить статистику грамматики"}

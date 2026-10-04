@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAddGrammarStatisticMutation } from "../api/hebrewApi";
-
 import { getVerbGrammarFromApi } from "../api/verbGrammar";
 
 import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
+
+import { useGrammarWords } from "../hooks/useGrammarWords";
 
 import { useAppSelector } from "../store/hooks";
 
@@ -20,7 +21,7 @@ type QuestionLimit = "10" | "20" | "all";
 function GrammarTest() {
     const navigate = useNavigate();
 
-    const words = useAppSelector((state) => state.grammar.words);
+    const { words, isLoading: isWordsLoading, isError: isWordsError } = useGrammarWords();
 
     const authStatus = useAppSelector((state) => state.auth.status);
 
@@ -32,7 +33,7 @@ function GrammarTest() {
 
     const [verbGrammars, setVerbGrammars] = useState<VerbGrammar[]>([]);
 
-    const [isLoading, setIsLoading] = useState(verbWords.length > 0);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -127,19 +128,12 @@ function GrammarTest() {
         const nextQuestions = allQuestions.slice(0, limit);
 
         setQuestions(nextQuestions);
-
         setCurrentIndex(0);
-
         setCorrectAnswers(0);
-
         setSelectedAnswer(null);
-
         setTimeLeft(TEST_TIMER_SECONDS);
-
         setIsTimeout(false);
-
         setIsFinished(false);
-
         setIsStarted(true);
     };
 
@@ -201,13 +195,44 @@ function GrammarTest() {
         }
 
         setCurrentIndex(nextIndex);
-
         setSelectedAnswer(null);
-
         setIsTimeout(false);
-
         setTimeLeft(TEST_TIMER_SECONDS);
     };
+
+    if (isWordsLoading) {
+        return (
+            <main className="grammar-test-page">
+                <h2 className="grammar-page-title">Тест по глаголам</h2>
+
+                <div className="grammar-empty">
+                    <h3>Загрузка выбранных слов...</h3>
+                </div>
+            </main>
+        );
+    }
+
+    if (isWordsError) {
+        return (
+            <main className="grammar-test-page">
+                <h2 className="grammar-page-title">Тест по глаголам</h2>
+
+                <div className="grammar-empty">
+                    <h3>Ошибка загрузки</h3>
+
+                    <p>Не удалось загрузить выбранные слова.</p>
+
+                    <button
+                        type="button"
+                        className="styled-btn"
+                        onClick={() => navigate("/grammar")}
+                    >
+                        Вернуться к грамматике
+                    </button>
+                </div>
+            </main>
+        );
+    }
 
     if (verbWords.length === 0) {
         return (
@@ -299,9 +324,7 @@ function GrammarTest() {
                         onChange={(event) => setQuestionLimit(event.target.value as QuestionLimit)}
                     >
                         <option value="10">10</option>
-
                         <option value="20">20</option>
-
                         <option value="all">Все доступные</option>
                     </select>
 
@@ -381,7 +404,6 @@ function GrammarTest() {
                             className="styled-btn"
                             onClick={() => {
                                 setIsStarted(false);
-
                                 setIsFinished(false);
                             }}
                         >

@@ -7,9 +7,8 @@ import {
     useState,
 } from "react";
 
+import { useGrammarWords } from "../hooks/useGrammarWords";
 import { useGrammarWordsActions } from "../hooks/useGrammarWordsActions";
-
-import { useAppSelector } from "../store/hooks";
 
 import type { CardWithId, Category } from "../types";
 
@@ -27,6 +26,8 @@ function Card({ card, category }: CardProps) {
     const [isPressing, setIsPressing] = useState(false);
 
     const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+    const { words } = useGrammarWords();
 
     const { addGrammarWord, removeGrammarWord } = useGrammarWordsActions();
 
@@ -46,9 +47,7 @@ function Card({ card, category }: CardProps) {
         id: card.id,
     };
 
-    const inGrammar = useAppSelector((state) =>
-        state.grammar.words.some((item) => item.category === category && item.id === card.id),
-    );
+    const inGrammar = words.some((item) => item.category === category && item.id === card.id);
 
     useEffect(() => {
         const checkTouchDevice = () => {
