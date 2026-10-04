@@ -1,7 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import type { RootState } from "../store/store";
-
 import type { Category, TestStats } from "../types";
 
 export interface User {
@@ -27,7 +25,6 @@ export interface LoginRequest {
 
 export interface AuthResponse {
     user: User;
-    accessToken: string;
 }
 
 export interface UserProgress {
@@ -37,12 +34,12 @@ export interface UserProgress {
 }
 
 export interface UpdateProgressRequest {
-    category: "verbs" | "adjectives" | "adverbs";
+    category: Category;
     unlockedLevel: number;
 }
 
 export interface UpdateProgressResponse {
-    category: "verbs" | "adjectives" | "adverbs";
+    category: Category;
     unlockedLevel: number;
     updatedAt: string;
 }
@@ -69,16 +66,7 @@ export const hebrewApi = createApi({
 
     baseQuery: fetchBaseQuery({
         baseUrl: "/api",
-
-        prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as RootState).auth.accessToken;
-
-            if (token) {
-                headers.set("Authorization", `Bearer ${token}`);
-            }
-
-            return headers;
-        },
+        credentials: "include",
     }),
 
     tagTypes: ["User", "Progress", "Statistics"],
@@ -102,6 +90,17 @@ export const hebrewApi = createApi({
             }),
 
             transformResponse: (response: { data: AuthResponse }) => response.data,
+
+            invalidatesTags: ["User", "Progress", "Statistics"],
+        }),
+
+        logout: builder.mutation<void, void>({
+            query: () => ({
+                url: "/auth/logout",
+                method: "POST",
+            }),
+
+            transformResponse: () => undefined,
         }),
 
         getCurrentUser: builder.query<User, void>({
@@ -124,6 +123,7 @@ export const hebrewApi = createApi({
             query: ({ category, unlockedLevel }) => ({
                 url: `/progress/${category}`,
                 method: "PUT",
+
                 body: {
                     unlockedLevel,
                 },
@@ -131,7 +131,7 @@ export const hebrewApi = createApi({
 
             transformResponse: (response: {
                 data: {
-                    category: "verbs" | "adjectives" | "adverbs";
+                    category: Category;
                     unlocked_level: number;
                     updated_at: string;
                 };
@@ -143,6 +143,7 @@ export const hebrewApi = createApi({
 
             invalidatesTags: ["Progress"],
         }),
+
         getStatistics: builder.query<TestStats, void>({
             query: () => "/statistics",
 
@@ -179,6 +180,7 @@ export const hebrewApi = createApi({
 export const {
     useRegisterMutation,
     useLoginMutation,
+    useLogoutMutation,
     useGetCurrentUserQuery,
     useGetProgressQuery,
     useUpdateProgressMutation,

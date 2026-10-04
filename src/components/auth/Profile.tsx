@@ -4,17 +4,27 @@ import { useGetCurrentUserQuery } from "../../api/hebrewApi";
 import { useAppSelector } from "../../store/hooks";
 
 function Profile() {
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+    const authStatus = useAppSelector((state) => state.auth.status);
 
     const {
         data: user,
         isLoading,
         isError,
     } = useGetCurrentUserQuery(undefined, {
-        skip: !accessToken,
+        skip: authStatus !== "authenticated",
     });
 
-    if (!accessToken) {
+    if (authStatus === "checking") {
+        return (
+            <main className="auth-page">
+                <div className="auth-card">
+                    <p>Проверка авторизации...</p>
+                </div>
+            </main>
+        );
+    }
+
+    if (authStatus === "guest") {
         return <Navigate to="/login" replace />;
     }
 

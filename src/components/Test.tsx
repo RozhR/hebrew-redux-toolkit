@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { Link } from "react-router-dom";
 
 import { useAddStatisticMutation } from "../api/hebrewApi";
@@ -6,6 +7,7 @@ import { useAddStatisticMutation } from "../api/hebrewApi";
 import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+
 import { unlockNextLevel } from "../store/progressSlice";
 import { addTestAttempt } from "../store/statisticsSlice";
 
@@ -49,7 +51,9 @@ function generateAnswers(words: CardData[], currentWord: CardData): string[] {
 export function Test({ words, category, level, isLastLevel, onBackToCards }: TestProps) {
     const dispatch = useAppDispatch();
 
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+    const authStatus = useAppSelector((state) => state.auth.status);
+
+    const isAuthenticated = authStatus === "authenticated";
 
     const [addStatistic] = useAddStatisticMutation();
 
@@ -79,11 +83,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
         const percent =
             testWords.length > 0 ? Math.round((finalCorrectAnswers / testWords.length) * 100) : 0;
 
-        /*
-         * Прогресс и статистика сохраняются
-         * только для авторизованного пользователя.
-         */
-        if (accessToken) {
+        if (isAuthenticated) {
             const attempt: TestAttempt = {
                 percent,
                 correct: finalCorrectAnswers,
@@ -198,7 +198,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
                     </p>
 
                     {passed ? (
-                        accessToken ? (
+                        isAuthenticated ? (
                             <p className="test-result-message passed-message">
                                 {isLastLevel
                                     ? "Отличный результат! Вы завершили все уровни этой категории."

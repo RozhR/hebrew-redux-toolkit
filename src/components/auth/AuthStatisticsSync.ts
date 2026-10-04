@@ -7,10 +7,10 @@ import { setStatistics } from "../../store/statisticsSlice";
 function AuthStatisticsSync() {
     const dispatch = useAppDispatch();
 
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+    const authStatus = useAppSelector((state) => state.auth.status);
 
     const { data: statistics } = useGetStatisticsQuery(undefined, {
-        skip: !accessToken,
+        skip: authStatus !== "authenticated",
     });
 
     useEffect(() => {

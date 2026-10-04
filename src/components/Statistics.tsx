@@ -1,3 +1,5 @@
+import { useClearStatisticsMutation } from "../api/hebrewApi";
+
 import { CATEGORIES, CATEGORY_CONFIG } from "../config/categories";
 
 import { clearGrammarTestStatistics } from "../store/grammarTestStatisticsSlice";
@@ -8,12 +10,10 @@ import { clearStatistics } from "../store/statisticsSlice";
 
 import { SECTION_TITLES } from "./grammar/grammarTestUtils";
 
-import { useClearStatisticsMutation } from "../api/hebrewApi";
-
 function Statistics() {
     const dispatch = useAppDispatch();
 
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+    const authStatus = useAppSelector((state) => state.auth.status);
 
     const [clearStatisticsOnServer, { isLoading: isClearingStatistics }] =
         useClearStatisticsMutation();
@@ -23,7 +23,7 @@ function Statistics() {
     const grammarTestStats = useAppSelector((state) => state.grammarTestStatistics);
 
     const handleClearStatistics = async () => {
-        if (!accessToken) {
+        if (authStatus !== "authenticated") {
             dispatch(clearStatistics());
 
             return;
@@ -34,8 +34,8 @@ function Statistics() {
 
             dispatch(clearStatistics());
         } catch {
-            // Если сервер не очистил статистику,
-            // локальные данные тоже оставляем.
+            // Если сервер не очистил данные,
+            // локальное состояние оставляем.
         }
     };
 

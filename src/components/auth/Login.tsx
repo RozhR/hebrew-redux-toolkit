@@ -1,23 +1,34 @@
 import { useState, type FormEvent } from "react";
+
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { useLoginMutation } from "../../api/hebrewApi";
-
-import { setAccessToken } from "../../store/authSlice";
+import { setAuthenticated } from "../../store/authSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 function Login() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+    const authStatus = useAppSelector((state) => state.auth.status);
 
     const [email, setEmail] = useState("");
+
     const [password, setPassword] = useState("");
 
     const [login, { isLoading, error }] = useLoginMutation();
 
-    if (accessToken) {
+    if (authStatus === "checking") {
+        return (
+            <main className="auth-page">
+                <div className="auth-card">
+                    <p>Проверка авторизации...</p>
+                </div>
+            </main>
+        );
+    }
+
+    if (authStatus === "authenticated") {
         return <Navigate to="/" replace />;
     }
 
@@ -25,16 +36,16 @@ function Login() {
         event.preventDefault();
 
         try {
-            const result = await login({
+            await login({
                 email,
                 password,
             }).unwrap();
 
-            dispatch(setAccessToken(result.accessToken));
+            dispatch(setAuthenticated());
 
             navigate("/");
         } catch {
-            // RTK Query хранит ошибку в error.
+            // Ошибка доступна через RTK Query error.
         }
     };
 

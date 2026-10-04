@@ -7,10 +7,10 @@ import { setProgress } from "../../store/progressSlice";
 function AuthProgressSync() {
     const dispatch = useAppDispatch();
 
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+    const authStatus = useAppSelector((state) => state.auth.status);
 
     const { data: progress } = useGetProgressQuery(undefined, {
-        skip: !accessToken,
+        skip: authStatus !== "authenticated",
     });
 
     useEffect(() => {

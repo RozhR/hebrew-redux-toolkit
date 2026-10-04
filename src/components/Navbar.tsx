@@ -1,13 +1,16 @@
 import { useState } from "react";
+
 import { NavLink, useNavigate } from "react-router-dom";
 
-import { hebrewApi, useGetCurrentUserQuery } from "../api/hebrewApi";
+import { hebrewApi, useGetCurrentUserQuery, useLogoutMutation } from "../api/hebrewApi";
+
 import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
-import { clearAccessToken } from "../store/authSlice";
+
+import { setGuest } from "../store/authSlice";
+
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import { resetProgress } from "../store/progressSlice";
-
 import { clearStatistics } from "../store/statisticsSlice";
 
 import type { Category } from "../types";
@@ -19,29 +22,42 @@ function Navbar() {
     const [openCategory, setOpenCategory] = useState<Category | null>(null);
 
     const count = useAppSelector((state) => state.grammar.words.length);
+
     const progress = useAppSelector((state) => state.progress);
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+
+    const authStatus = useAppSelector((state) => state.auth.status);
+
+    const isAuthenticated = authStatus === "authenticated";
 
     const { data: user, isLoading: isUserLoading } = useGetCurrentUserQuery(undefined, {
-        skip: !accessToken,
+        skip: !isAuthenticated,
     });
+
+    const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
 
     const closeMenu = () => {
         setOpenCategory(null);
     };
 
-    const handleLogout = () => {
-        dispatch(clearAccessToken());
+    const handleLogout = async () => {
+        try {
+            await logout().unwrap();
 
-        dispatch(resetProgress());
+            dispatch(setGuest());
 
-        dispatch(clearStatistics());
+            dispatch(resetProgress());
 
-        dispatch(hebrewApi.util.resetApiState());
+            dispatch(clearStatistics());
 
-        closeMenu();
+            dispatch(hebrewApi.util.resetApiState());
 
-        navigate("/");
+            closeMenu();
+
+            navigate("/");
+        } catch {
+            // Если logout на сервере не прошёл,
+            // локальную сессию не очищаем.
+        }
     };
 
     return (
@@ -75,29 +91,32 @@ function Navbar() {
                                         : "styled-dropdown dropdown-menu"
                                 }
                             >
-                                {Array.from({ length: config.levels }, (_, index) => index + 1).map(
-                                    (level) => {
-                                        const unlocked = level <= progress[category];
-
-                                        return (
-                                            <li key={level}>
-                                                {unlocked ? (
-                                                    <NavLink
-                                                        to={`/${category}/${level}`}
-                                                        className="level-link"
-                                                        onClick={closeMenu}
-                                                    >
-                                                        Уровень {level}
-                                                    </NavLink>
-                                                ) : (
-                                                    <span className="locked-link">
-                                                        🔒 Уровень {level}
-                                                    </span>
-                                                )}
-                                            </li>
-                                        );
+                                {Array.from(
+                                    {
+                                        length: config.levels,
                                     },
-                                )}
+                                    (_, index) => index + 1,
+                                ).map((level) => {
+                                    const unlocked = level <= progress[category];
+
+                                    return (
+                                        <li key={level}>
+                                            {unlocked ? (
+                                                <NavLink
+                                                    to={`/${category}/${level}`}
+                                                    className="level-link"
+                                                    onClick={closeMenu}
+                                                >
+                                                    Уровень {level}
+                                                </NavLink>
+                                            ) : (
+                                                <span className="locked-link">
+                                                    🔒 Уровень {level}
+                                                </span>
+                                            )}
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         </li>
                     );
@@ -122,7 +141,9 @@ function Navbar() {
                 </li>
 
                 <li className="auth-section">
-                    {!accessToken ? (
+                    {authStatus === "checking" ? (
+                        <span className="nav-link">...</span>
+                    ) : !isAuthenticated ? (
                         <NavLink to="/login" className="nav-link" onClick={closeMenu}>
                             Войти
                         </NavLink>
@@ -136,8 +157,13 @@ function Navbar() {
                                 {isUserLoading ? "Профиль" : user?.first_name || "Профиль"}
                             </NavLink>
 
-                            <button type="button" className="logout-btn" onClick={handleLogout}>
-                                Выйти
+                            <button
+                                type="button"
+                                className="logout-btn"
+                                onClick={handleLogout}
+                                disabled={isLoggingOut}
+                            >
+                                {isLoggingOut ? "Выход..." : "Выйти"}
                             </button>
                         </div>
                     )}
