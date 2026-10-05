@@ -1,12 +1,9 @@
-import { useGetGrammarWordsQuery } from "../api/hebrewApi";
-
+import { useGetGrammarWordsQuery } from "../api/grammarWordsApi";
 import { useAppSelector } from "../store/hooks";
 
 export function useGrammarWords() {
     const authStatus = useAppSelector((state) => state.auth.status);
-
     const guestWords = useAppSelector((state) => state.guestGrammar.words);
-
     const isAuthenticated = authStatus === "authenticated";
 
     const {
@@ -18,7 +15,7 @@ export function useGrammarWords() {
         skip: !isAuthenticated,
     });
 
-    if (authStatus === "guest") {
+    if (authStatus === "guest" || authStatus === "error") {
         return {
             words: guestWords,
             isLoading: false,
@@ -26,7 +23,7 @@ export function useGrammarWords() {
         };
     }
 
-    if (authStatus === "authenticated") {
+    if (isAuthenticated) {
         return {
             words: serverWords ?? [],
             isLoading: !serverWords && (isLoading || isFetching),

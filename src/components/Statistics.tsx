@@ -3,7 +3,7 @@ import {
     useClearStatisticsMutation,
     useGetGrammarStatisticsQuery,
     useGetStatisticsQuery,
-} from "../api/hebrewApi";
+} from "../api/statisticsApi";
 
 import { CATEGORIES, CATEGORY_CONFIG } from "../config/categories";
 
@@ -47,8 +47,7 @@ function Statistics() {
         try {
             await clearStatisticsOnServer().unwrap();
         } catch {
-            // RTK Query оставит старые данные,
-            // если сервер не выполнил удаление.
+            return;
         }
     };
 
@@ -60,8 +59,7 @@ function Statistics() {
         try {
             await clearGrammarStatisticsOnServer().unwrap();
         } catch {
-            // RTK Query оставит старые данные,
-            // если сервер не выполнил удаление.
+            return;
         }
     };
 

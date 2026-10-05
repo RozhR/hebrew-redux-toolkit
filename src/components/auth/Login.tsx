@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
-import { useLoginMutation } from "../../api/hebrewApi";
+import { useLoginMutation } from "../../api/authApi";
 
 import { setAuthenticated } from "../../store/authSlice";
 
@@ -46,19 +46,13 @@ function Login() {
                 password,
             }).unwrap();
 
-            /*
-             * Гостевые слова
-             * не переносим
-             * в аккаунт.
-             */
             dispatch(clearGuestGrammar());
 
             dispatch(setAuthenticated());
 
             navigate("/");
         } catch {
-            // Ошибка доступна
-            // через RTK Query.
+            return;
         }
     };
 

@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Link } from "react-router-dom";
 
-import { useAddStatisticMutation } from "../api/hebrewApi";
+import { useAddStatisticMutation } from "../api/statisticsApi";
 
-import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
+import { PASS_PERCENT, TIMER_WARNING_SECONDS } from "../config/test";
+
+import { useTestTimer } from "../hooks/useTestTimer";
 
 import { useAppSelector } from "../store/hooks";
 
@@ -60,13 +62,13 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
 
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-    const [timeLeft, setTimeLeft] = useState(TEST_TIMER_SECONDS);
-
-    const [isTimeout, setIsTimeout] = useState(false);
-
     const [isFinished, setIsFinished] = useState(false);
 
     const currentWord = testWords[currentIndex];
+
+    const { timeLeft, isTimeout, resetTimer } = useTestTimer(
+        Boolean(currentWord) && selectedAnswer === null && !isFinished,
+    );
 
     const [answers, setAnswers] = useState<string[]>(() => {
         const firstWord = testWords[0];
@@ -98,9 +100,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
 
         setSelectedAnswer(null);
 
-        setTimeLeft(TEST_TIMER_SECONDS);
-
-        setIsTimeout(false);
+        resetTimer();
 
         setIsFinished(false);
 
@@ -108,30 +108,6 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
 
         setAnswers(firstWord ? generateAnswers(shuffledWords, firstWord) : []);
     };
-
-    useEffect(() => {
-        if (!currentWord || selectedAnswer !== null || isTimeout || isFinished) {
-            return;
-        }
-
-        const timerId = window.setInterval(() => {
-            setTimeLeft((previousTime) => {
-                if (previousTime <= 1) {
-                    window.clearInterval(timerId);
-
-                    setIsTimeout(true);
-
-                    return 0;
-                }
-
-                return previousTime - 1;
-            });
-        }, 1000);
-
-        return () => {
-            window.clearInterval(timerId);
-        };
-    }, [currentWord, selectedAnswer, isTimeout, isFinished]);
 
     if (!currentWord && !isFinished) {
         return (
@@ -241,9 +217,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
 
         setSelectedAnswer(null);
 
-        setIsTimeout(false);
-
-        setTimeLeft(TEST_TIMER_SECONDS);
+        resetTimer();
     };
 
     const answered = selectedAnswer !== null || isTimeout;

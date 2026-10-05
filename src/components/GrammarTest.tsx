@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { useAddGrammarStatisticMutation } from "../api/hebrewApi";
-import { getVerbGrammarFromApi } from "../api/verbGrammar";
+import { useGetVerbGrammarsQuery } from "../api/grammarApi";
+import { useAddGrammarStatisticMutation } from "../api/statisticsApi";
 
-import { PASS_PERCENT, TEST_TIMER_SECONDS, TIMER_WARNING_SECONDS } from "../config/test";
+import { PASS_PERCENT, TIMER_WARNING_SECONDS } from "../config/test";
 
 import { useGrammarWords } from "../hooks/useGrammarWords";
+import { useTestTimer } from "../hooks/useTestTimer";
 
 import { useAppSelector } from "../store/hooks";
 
-import type { GrammarTestSection, VerbGrammar } from "../types/grammar";
+import type { GrammarTestSection } from "../types/grammar";
 
 import { createQuestions, GRAMMAR_TEST_SECTIONS, SECTION_TITLES } from "./grammar/grammarTestUtils";
 
@@ -31,11 +32,15 @@ function GrammarTest() {
 
     const verbWords = words.filter((word) => word.category === "verbs");
 
-    const [verbGrammars, setVerbGrammars] = useState<VerbGrammar[]>([]);
-
-    const [isLoading, setIsLoading] = useState(false);
-
-    const [loadError, setLoadError] = useState<string | null>(null);
+    const {
+        data: verbGrammars = [],
+        isLoading: isGrammarLoading,
+        isFetching: isGrammarFetching,
+        isError: isGrammarError,
+    } = useGetVerbGrammarsQuery(
+        verbWords.map((word) => word.id),
+        { skip: verbWords.length === 0 },
+    );
 
     const [selectedSections, setSelectedSections] = useState<GrammarTestSection[]>([
         "present",
@@ -53,58 +58,15 @@ function GrammarTest() {
 
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-    const [timeLeft, setTimeLeft] = useState(TEST_TIMER_SECONDS);
-
-    const [isTimeout, setIsTimeout] = useState(false);
-
     const [isStarted, setIsStarted] = useState(false);
 
     const [isFinished, setIsFinished] = useState(false);
 
     const currentQuestion = questions[currentIndex];
 
-    useEffect(() => {
-        const currentVerbWords = words.filter((word) => word.category === "verbs");
-
-        if (currentVerbWords.length === 0) {
-            return;
-        }
-
-        let isActive = true;
-
-        async function loadVerbGrammars() {
-            try {
-                setIsLoading(true);
-                setLoadError(null);
-
-                const grammars = await Promise.all(
-                    currentVerbWords.map((word) => getVerbGrammarFromApi(word.id)),
-                );
-
-                if (isActive) {
-                    setVerbGrammars(grammars);
-                }
-            } catch (error) {
-                if (isActive) {
-                    setLoadError(
-                        error instanceof Error
-                            ? error.message
-                            : "Не удалось загрузить грамматику глаголов",
-                    );
-                }
-            } finally {
-                if (isActive) {
-                    setIsLoading(false);
-                }
-            }
-        }
-
-        void loadVerbGrammars();
-
-        return () => {
-            isActive = false;
-        };
-    }, [words]);
+    const { timeLeft, isTimeout, resetTimer } = useTestTimer(
+        isStarted && !isFinished && Boolean(currentQuestion) && selectedAnswer === null,
+    );
 
     const toggleSection = (section: GrammarTestSection) => {
         setSelectedSections((current) => {
@@ -131,35 +93,10 @@ function GrammarTest() {
         setCurrentIndex(0);
         setCorrectAnswers(0);
         setSelectedAnswer(null);
-        setTimeLeft(TEST_TIMER_SECONDS);
-        setIsTimeout(false);
+        resetTimer();
         setIsFinished(false);
         setIsStarted(true);
     };
-
-    useEffect(() => {
-        if (!isStarted || isFinished || !currentQuestion || selectedAnswer !== null || isTimeout) {
-            return;
-        }
-
-        const timerId = window.setInterval(() => {
-            setTimeLeft((previous) => {
-                if (previous <= 1) {
-                    window.clearInterval(timerId);
-
-                    setIsTimeout(true);
-
-                    return 0;
-                }
-
-                return previous - 1;
-            });
-        }, 1000);
-
-        return () => {
-            window.clearInterval(timerId);
-        };
-    }, [isStarted, isFinished, currentQuestion, selectedAnswer, isTimeout]);
 
     const checkAnswer = (answer: string) => {
         if (!currentQuestion || selectedAnswer !== null || isTimeout) {
@@ -196,8 +133,7 @@ function GrammarTest() {
 
         setCurrentIndex(nextIndex);
         setSelectedAnswer(null);
-        setIsTimeout(false);
-        setTimeLeft(TEST_TIMER_SECONDS);
+        resetTimer();
     };
 
     if (isWordsLoading) {
@@ -256,7 +192,7 @@ function GrammarTest() {
         );
     }
 
-    if (isLoading) {
+    if (isGrammarLoading || isGrammarFetching) {
         return (
             <main className="grammar-test-page">
                 <h2 className="grammar-page-title">Тест по глаголам</h2>
@@ -268,7 +204,7 @@ function GrammarTest() {
         );
     }
 
-    if (loadError) {
+    if (isGrammarError) {
         return (
             <main className="grammar-test-page">
                 <h2 className="grammar-page-title">Тест по глаголам</h2>
@@ -276,7 +212,7 @@ function GrammarTest() {
                 <div className="grammar-empty">
                     <h3>Ошибка загрузки</h3>
 
-                    <p>{loadError}</p>
+                    <p>Не удалось загрузить грамматику глаголов.</p>
 
                     <button
                         type="button"

@@ -2,7 +2,8 @@ import { useState } from "react";
 
 import { NavLink, useNavigate } from "react-router-dom";
 
-import { hebrewApi, useGetCurrentUserQuery, useLogoutMutation } from "../api/hebrewApi";
+import { useGetCurrentUserQuery, useLogoutMutation } from "../api/authApi";
+import { baseApi } from "../api/baseApi";
 
 import { CATEGORY_CONFIG, CATEGORIES } from "../config/categories";
 
@@ -49,35 +50,15 @@ function Navbar() {
 
             dispatch(setGuest());
 
-            /*
-             * После выхода гостевая
-             * грамматика должна быть пустой.
-             */
             dispatch(clearGuestGrammar());
 
-            /*
-             * Удаляем серверные данные
-             * текущего пользователя
-             * из RTK Query cache:
-             *
-             * User
-             * Progress
-             * Statistics
-             * GrammarStatistics
-             * GrammarWords
-             */
-            dispatch(hebrewApi.util.resetApiState());
+            dispatch(baseApi.util.resetApiState());
 
             closeMenu();
 
             navigate("/");
         } catch {
-            /*
-             * Если logout на сервере
-             * не прошёл, локальное
-             * состояние пользователя
-             * не меняем.
-             */
+            return;
         }
     };
 

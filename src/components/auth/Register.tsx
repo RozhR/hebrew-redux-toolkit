@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { useRegisterMutation } from "../../api/hebrewApi";
+import { useRegisterMutation } from "../../api/authApi";
 
 function Register() {
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ function Register() {
 
             navigate("/login");
         } catch {
-            // Ошибка уже доступна через RTK Query error.
+            return;
         }
     };
 

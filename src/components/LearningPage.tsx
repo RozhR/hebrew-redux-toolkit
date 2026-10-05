@@ -1,14 +1,8 @@
-import { useEffect, useState } from "react";
-
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-import { getVocabulary } from "../api/vocabulary";
-
+import { useGetVocabularyQuery } from "../api/vocabularyApi";
 import { CATEGORY_CONFIG, isCategory } from "../config/categories";
-
 import { useUserProgress } from "../hooks/useUserProgress";
-
-import type { CardWithId } from "../types";
 
 import CardList from "./CardList";
 import { Test } from "./Test";
@@ -19,64 +13,31 @@ type LearningPageProps = {
 
 function LearningPage({ testMode = false }: LearningPageProps) {
     const navigate = useNavigate();
-
     const { progress, isProgressLoading } = useUserProgress();
-
     const { category: categoryParam, level: levelParam } = useParams();
 
     const category = isCategory(categoryParam) ? categoryParam : null;
-
     const level = Number(levelParam);
 
-    const [cards, setCards] = useState<CardWithId[]>([]);
+    const validLevel = Number.isInteger(level) && level >= 1;
+    const maxLevel = category ? CATEGORY_CONFIG[category].levels : 1;
+    const levelInRange = validLevel && level <= maxLevel;
+    const highestUnlockedLevel = category ? Math.min(progress[category], maxLevel) : 1;
+    const unlocked = levelInRange && level <= highestUnlockedLevel;
 
-    const [isLoading, setIsLoading] = useState(true);
-
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!category || !Number.isInteger(level)) {
-            return;
-        }
-
-        const currentCategory = category;
-
-        const currentLevel = level;
-
-        let isActive = true;
-
-        async function loadCards() {
-            try {
-                setIsLoading(true);
-
-                setError(null);
-
-                const loadedCards = await getVocabulary(currentCategory, currentLevel);
-
-                if (isActive) {
-                    setCards(loadedCards);
-                }
-            } catch (loadError) {
-                if (isActive) {
-                    setError(
-                        loadError instanceof Error
-                            ? loadError.message
-                            : "Не удалось загрузить слова",
-                    );
-                }
-            } finally {
-                if (isActive) {
-                    setIsLoading(false);
-                }
-            }
-        }
-
-        void loadCards();
-
-        return () => {
-            isActive = false;
-        };
-    }, [category, level]);
+    const {
+        data: cards = [],
+        isLoading,
+        isError,
+    } = useGetVocabularyQuery(
+        {
+            category: category ?? "verbs",
+            level: levelInRange ? level : 1,
+        },
+        {
+            skip: !category || !levelInRange || isProgressLoading || !unlocked,
+        },
+    );
 
     if (!category) {
         return <Navigate to="/verbs/1" replace />;
@@ -84,9 +45,7 @@ function LearningPage({ testMode = false }: LearningPageProps) {
 
     const categoryConfig = CATEGORY_CONFIG[category];
 
-    const maxLevel = categoryConfig.levels;
-
-    if (!Number.isInteger(level) || level < 1 || level > maxLevel) {
+    if (!levelInRange) {
         return <Navigate to={`/${category}/1`} replace />;
     }
 
@@ -102,9 +61,7 @@ function LearningPage({ testMode = false }: LearningPageProps) {
         );
     }
 
-    const highestUnlockedLevel = Math.min(progress[category], maxLevel);
-
-    if (level > highestUnlockedLevel) {
+    if (!unlocked) {
         return <Navigate to={`/${category}/${highestUnlockedLevel}`} replace />;
     }
 
@@ -120,14 +77,14 @@ function LearningPage({ testMode = false }: LearningPageProps) {
         );
     }
 
-    if (error) {
+    if (isError) {
         return (
             <>
                 <h2 className="level-title">
                     {categoryConfig.title} — Уровень {level}
                 </h2>
 
-                <p>Ошибка загрузки данных: {error}</p>
+                <p>Не удалось загрузить слова.</p>
             </>
         );
     }

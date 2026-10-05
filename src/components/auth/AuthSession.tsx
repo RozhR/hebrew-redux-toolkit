@@ -1,27 +1,31 @@
 import { useEffect } from "react";
 
-import { useGetCurrentUserQuery } from "../../api/hebrewApi";
+import { useGetCurrentUserQuery } from "../../api/authApi";
 
-import { setAuthenticated, setGuest } from "../../store/authSlice";
-
+import { setAuthenticated, setAuthError, setGuest } from "../../store/authSlice";
 import { useAppDispatch } from "../../store/hooks";
 
 function AuthSession() {
     const dispatch = useAppDispatch();
-
-    const { data: user, isSuccess, isError } = useGetCurrentUserQuery();
+    const { data: user, isSuccess, isError, error } = useGetCurrentUserQuery();
 
     useEffect(() => {
         if (isSuccess && user) {
             dispatch(setAuthenticated());
-
             return;
         }
 
-        if (isError) {
-            dispatch(setGuest());
+        if (!isError) {
+            return;
         }
-    }, [dispatch, isError, isSuccess, user]);
+
+        if (error && "status" in error && error.status === 401) {
+            dispatch(setGuest());
+            return;
+        }
+
+        dispatch(setAuthError());
+    }, [dispatch, error, isError, isSuccess, user]);
 
     return null;
 }

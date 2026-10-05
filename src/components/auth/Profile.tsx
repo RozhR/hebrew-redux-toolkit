@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 
-import { useGetCurrentUserQuery } from "../../api/hebrewApi";
+import { useGetCurrentUserQuery } from "../../api/authApi";
 import { useAppSelector } from "../../store/hooks";
 
 function Profile() {
