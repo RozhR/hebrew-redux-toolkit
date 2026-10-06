@@ -145,6 +145,8 @@ function Navbar() {
                 <li className="auth-section">
                     {authStatus === "checking" ? (
                         <span className="nav-link">...</span>
+                    ) : authStatus === "error" ? (
+                        <span className="nav-link">Сервер недоступен</span>
                     ) : !isAuthenticated ? (
                         <NavLink to="/login" className="nav-link" onClick={closeMenu}>
                             Войти

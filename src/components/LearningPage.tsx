@@ -13,7 +13,7 @@ type LearningPageProps = {
 
 function LearningPage({ testMode = false }: LearningPageProps) {
     const navigate = useNavigate();
-    const { progress, isProgressLoading } = useUserProgress();
+    const { progress, isProgressLoading, isProgressError } = useUserProgress();
     const { category: categoryParam, level: levelParam } = useParams();
 
     const category = isCategory(categoryParam) ? categoryParam : null;
@@ -26,8 +26,9 @@ function LearningPage({ testMode = false }: LearningPageProps) {
     const unlocked = levelInRange && level <= highestUnlockedLevel;
 
     const {
-        data: cards = [],
+        currentData: cards = [],
         isLoading,
+        isFetching,
         isError,
     } = useGetVocabularyQuery(
         {
@@ -35,7 +36,7 @@ function LearningPage({ testMode = false }: LearningPageProps) {
             level: levelInRange ? level : 1,
         },
         {
-            skip: !category || !levelInRange || isProgressLoading || !unlocked,
+            skip: !category || !levelInRange || isProgressLoading || isProgressError || !unlocked,
         },
     );
 
@@ -61,11 +62,23 @@ function LearningPage({ testMode = false }: LearningPageProps) {
         );
     }
 
+    if (isProgressError) {
+        return (
+            <>
+                <h2 className="level-title">
+                    {categoryConfig.title} — Уровень {level}
+                </h2>
+
+                <p>Не удалось загрузить прогресс. Проверьте соединение с сервером.</p>
+            </>
+        );
+    }
+
     if (!unlocked) {
         return <Navigate to={`/${category}/${highestUnlockedLevel}`} replace />;
     }
 
-    if (isLoading) {
+    if (isLoading || isFetching) {
         return (
             <>
                 <h2 className="level-title">

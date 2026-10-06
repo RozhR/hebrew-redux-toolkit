@@ -10,6 +10,28 @@ import { clearGuestGrammar } from "../../store/guestGrammarSlice";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
+function getLoginErrorMessage(error: unknown) {
+    if (!error || typeof error !== "object" || !("status" in error)) {
+        return "Не удалось выполнить вход. Попробуйте ещё раз.";
+    }
+
+    const status = error.status;
+
+    if (status === 401) {
+        return "Неверный email или пароль.";
+    }
+
+    if (status === "FETCH_ERROR") {
+        return "Сервер недоступен. Проверьте соединение и попробуйте ещё раз.";
+    }
+
+    if (typeof status === "number" && status >= 500) {
+        return "Ошибка сервера. Попробуйте ещё раз позже.";
+    }
+
+    return "Не удалось выполнить вход. Проверьте введённые данные.";
+}
+
 function Login() {
     const dispatch = useAppDispatch();
 
@@ -82,7 +104,7 @@ function Login() {
                         />
                     </label>
 
-                    {error && <p className="auth-error">Неверный email или пароль.</p>}
+                    {error && <p className="auth-error">{getLoginErrorMessage(error)}</p>}
 
                     <button type="submit" className="styled-btn" disabled={isLoading}>
                         {isLoading ? "Вход..." : "Войти"}

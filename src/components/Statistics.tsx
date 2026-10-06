@@ -90,6 +90,18 @@ function Statistics() {
 
     const isLoading = isAuthenticated && (isLoadingStatistics || isLoadingGrammarStatistics);
 
+    if (authStatus === "error") {
+        return (
+            <div className="statistics-page">
+                <h2 className="statistics-title">Статистика</h2>
+
+                <p className="statistics-empty">
+                    Сервер недоступен. Не удалось определить состояние авторизации.
+                </p>
+            </div>
+        );
+    }
+
     if (isLoading) {
         return (
             <div className="statistics-page">

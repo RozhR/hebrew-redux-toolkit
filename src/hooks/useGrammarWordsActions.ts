@@ -15,15 +15,21 @@ import type { GrammarWordRef } from "../types/grammar";
 
 export function useGrammarWordsActions() {
     const dispatch = useAppDispatch();
-    const isAuthenticated = useAppSelector((state) => state.auth.status === "authenticated");
+    const authStatus = useAppSelector((state) => state.auth.status);
+
+    const isAuthenticated = authStatus === "authenticated";
 
     const [addGrammarWordOnServer] = useAddGrammarWordMutation();
     const [removeGrammarWordOnServer] = useRemoveGrammarWordMutation();
     const [clearGrammarWordsOnServer] = useClearGrammarWordsMutation();
 
     const addGrammarWord = async (word: GrammarWordRef) => {
-        if (!isAuthenticated) {
+        if (authStatus === "guest") {
             dispatch(addGuestGrammarWord(word));
+            return;
+        }
+
+        if (!isAuthenticated) {
             return;
         }
 
@@ -35,8 +41,12 @@ export function useGrammarWordsActions() {
     };
 
     const removeGrammarWord = async (word: GrammarWordRef) => {
-        if (!isAuthenticated) {
+        if (authStatus === "guest") {
             dispatch(removeGuestGrammarWord(word));
+            return;
+        }
+
+        if (!isAuthenticated) {
             return;
         }
 
@@ -48,8 +58,12 @@ export function useGrammarWordsActions() {
     };
 
     const clearAllGrammarWords = async () => {
-        if (!isAuthenticated) {
+        if (authStatus === "guest") {
             dispatch(clearGuestGrammar());
+            return;
+        }
+
+        if (!isAuthenticated) {
             return;
         }
 

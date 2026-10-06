@@ -15,11 +15,19 @@ export function useGrammarWords() {
         skip: !isAuthenticated,
     });
 
-    if (authStatus === "guest" || authStatus === "error") {
+    if (authStatus === "guest") {
         return {
             words: guestWords,
             isLoading: false,
             isError: false,
+        };
+    }
+
+    if (authStatus === "error") {
+        return {
+            words: [],
+            isLoading: false,
+            isError: true,
         };
     }
 

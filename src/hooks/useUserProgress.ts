@@ -11,7 +11,7 @@ export function useUserProgress() {
     const authStatus = useAppSelector((state) => state.auth.status);
     const isAuthenticated = authStatus === "authenticated";
 
-    const { data, isLoading, isFetching } = useGetProgressQuery(undefined, {
+    const { data, isLoading, isFetching, isError } = useGetProgressQuery(undefined, {
         skip: !isAuthenticated,
     });
 
@@ -19,5 +19,6 @@ export function useUserProgress() {
         progress: isAuthenticated && data ? data : GUEST_PROGRESS,
         isProgressLoading:
             authStatus === "checking" || (isAuthenticated && (isLoading || isFetching) && !data),
+        isProgressError: authStatus === "error" || (isAuthenticated && isError),
     };
 }

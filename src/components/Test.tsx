@@ -20,6 +20,8 @@ interface TestProps {
     onBackToCards: () => void;
 }
 
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
 function shuffleArray<T>(array: T[]): T[] {
     const result = [...array];
 
@@ -64,6 +66,8 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
 
     const [isFinished, setIsFinished] = useState(false);
 
+    const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+
     const currentWord = testWords[currentIndex];
 
     const { timeLeft, isTimeout, resetTimer } = useTestTimer(
@@ -76,17 +80,27 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
         return firstWord ? generateAnswers(testWords, firstWord) : [];
     });
 
-    const finishTest = (finalCorrectAnswers: number) => {
-        if (isAuthenticated) {
-            void addStatistic({
+    const finishTest = async (finalCorrectAnswers: number) => {
+        setIsFinished(true);
+
+        if (!isAuthenticated) {
+            return;
+        }
+
+        setSaveStatus("saving");
+
+        try {
+            await addStatistic({
                 category,
                 level,
                 correct: finalCorrectAnswers,
                 total: testWords.length,
-            });
-        }
+            }).unwrap();
 
-        setIsFinished(true);
+            setSaveStatus("saved");
+        } catch {
+            setSaveStatus("error");
+        }
     };
 
     const restartTest = () => {
@@ -103,6 +117,8 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
         resetTimer();
 
         setIsFinished(false);
+
+        setSaveStatus("idle");
 
         const firstWord = shuffledWords[0];
 
@@ -143,11 +159,19 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
 
                     {passed ? (
                         isAuthenticated ? (
-                            <p className="test-result-message passed-message">
-                                {isLastLevel
-                                    ? "Отличный результат! Вы завершили все уровни этой категории."
-                                    : "Отличный результат! Следующий уровень разблокирован."}
-                            </p>
+                            saveStatus === "saving" ? (
+                                <p className="test-result-message">Сохраняем результат...</p>
+                            ) : saveStatus === "error" ? (
+                                <p className="test-result-message failed-message">
+                                    Не удалось сохранить результат. Уровень не разблокирован.
+                                </p>
+                            ) : (
+                                <p className="test-result-message passed-message">
+                                    {isLastLevel
+                                        ? "Отличный результат! Вы завершили все уровни этой категории."
+                                        : "Отличный результат! Следующий уровень разблокирован."}
+                                </p>
+                            )
                         ) : (
                             <div className="test-registration-message">
                                 <p className="test-result-message passed-message">
@@ -168,18 +192,36 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
                             </div>
                         )
                     ) : (
-                        <p className="test-result-message failed-message">
-                            Для прохождения уровня необходимо набрать минимум {PASS_PERCENT}
-                            %.
-                        </p>
+                        <>
+                            <p className="test-result-message failed-message">
+                                Для прохождения уровня необходимо набрать минимум {PASS_PERCENT}
+                                %.
+                            </p>
+
+                            {isAuthenticated && saveStatus === "error" && (
+                                <p className="test-result-message failed-message">
+                                    Не удалось сохранить результат теста.
+                                </p>
+                            )}
+                        </>
                     )}
 
                     <div className="test-result-actions">
-                        <button type="button" className="styled-btn" onClick={restartTest}>
+                        <button
+                            type="button"
+                            className="styled-btn"
+                            onClick={restartTest}
+                            disabled={saveStatus === "saving"}
+                        >
                             Пройти ещё раз
                         </button>
 
-                        <button type="button" className="styled-btn" onClick={onBackToCards}>
+                        <button
+                            type="button"
+                            className="styled-btn"
+                            onClick={onBackToCards}
+                            disabled={saveStatus === "saving"}
+                        >
                             Вернуться к карточкам
                         </button>
                     </div>
@@ -206,7 +248,7 @@ export function Test({ words, category, level, isLastLevel, onBackToCards }: Tes
         const nextWord = testWords[nextIndex];
 
         if (!nextWord) {
-            finishTest(correctAnswers);
+            void finishTest(correctAnswers);
 
             return;
         }
