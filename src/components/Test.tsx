@@ -1,3 +1,4 @@
+import { shuffleArray } from "../utils/shuffleArray";
 import { useState } from "react";
 
 import { Link } from "react-router-dom";
@@ -21,18 +22,6 @@ interface TestProps {
 }
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
-
-function shuffleArray<T>(array: T[]): T[] {
-    const result = [...array];
-
-    for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-
-    return result;
-}
 
 function generateAnswers(words: CardData[], currentWord: CardData): string[] {
     const wrongAnswers = Array.from(

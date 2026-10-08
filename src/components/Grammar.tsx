@@ -16,7 +16,7 @@ function getWordKey(word: GrammarWordRef) {
 
 function Grammar() {
     const { words, isLoading: isWordsLoading, isError: isWordsError } = useGrammarWords();
-    const { removeGrammarWord, clearAllGrammarWords } = useGrammarWordsActions();
+    const { removeGrammarWord, clearAllGrammarWords, actionError } = useGrammarWordsActions();
 
     const {
         verbs,
@@ -56,8 +56,9 @@ function Grammar() {
             return;
         }
 
-        await clearAllGrammarWords();
-        setExpandedWords(new Set());
+        if (await clearAllGrammarWords()) {
+            setExpandedWords(new Set());
+        }
     };
 
     if (isWordsLoading) {
@@ -89,6 +90,7 @@ function Grammar() {
         <main className="grammar-page">
             <h2 className="grammar-page-title">Грамматика</h2>
 
+            {actionError && <p role="alert">{actionError}</p>}
             <div className="grammar-page-toolbar">
                 <p>
                     Выбрано слов: <strong>{count}</strong>

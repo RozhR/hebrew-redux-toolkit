@@ -28,7 +28,8 @@ function GrammarTest() {
 
     const isAuthenticated = authStatus === "authenticated";
 
-    const [addGrammarStatistic] = useAddGrammarStatisticMutation();
+    const [addGrammarStatistic, { isLoading: isSaving, isError: isSaveError, reset: resetSave }] =
+        useAddGrammarStatisticMutation();
 
     const verbWords = words.filter((word) => word.category === "verbs");
 
@@ -89,6 +90,7 @@ function GrammarTest() {
 
         const nextQuestions = allQuestions.slice(0, limit);
 
+        resetSave();
         setQuestions(nextQuestions);
         setCurrentIndex(0);
         setCorrectAnswers(0);
@@ -110,7 +112,7 @@ function GrammarTest() {
         }
     };
 
-    const finishTest = () => {
+    const saveResult = () => {
         if (isAuthenticated) {
             void addGrammarStatistic({
                 correct: correctAnswers,
@@ -118,7 +120,10 @@ function GrammarTest() {
                 sections: selectedSections,
             });
         }
+    };
 
+    const finishTest = () => {
+        saveResult();
         setIsFinished(true);
     };
 
@@ -311,6 +316,20 @@ function GrammarTest() {
                         <strong>{questions.length}</strong>
                     </p>
 
+                    {isAuthenticated && isSaving && <p role="status">Сохраняем результат...</p>}
+                    {isAuthenticated && isSaveError && (
+                        <div role="alert">
+                            <p>Не удалось сохранить результат грамматического теста.</p>
+                            <button
+                                type="button"
+                                className="styled-btn"
+                                onClick={saveResult}
+                                disabled={isSaving}
+                            >
+                                Повторить сохранение
+                            </button>
+                        </div>
+                    )}
                     {!isAuthenticated && (
                         <div className="test-registration-message">
                             <p>
@@ -331,13 +350,19 @@ function GrammarTest() {
                     )}
 
                     <div className="test-result-actions">
-                        <button type="button" className="styled-btn" onClick={startTest}>
+                        <button
+                            type="button"
+                            className="styled-btn"
+                            onClick={startTest}
+                            disabled={isSaving}
+                        >
                             Пройти ещё раз
                         </button>
 
                         <button
                             type="button"
                             className="styled-btn"
+                            disabled={isSaving}
                             onClick={() => {
                                 setIsStarted(false);
                                 setIsFinished(false);
@@ -350,6 +375,7 @@ function GrammarTest() {
                             type="button"
                             className="styled-btn"
                             onClick={() => navigate("/grammar")}
+                            disabled={isSaving}
                         >
                             К грамматике
                         </button>

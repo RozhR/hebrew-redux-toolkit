@@ -20,20 +20,33 @@ function Statistics() {
 
     const isAuthenticated = authStatus === "authenticated";
 
-    const { data: statistics, isLoading: isLoadingStatistics } = useGetStatisticsQuery(undefined, {
+    const {
+        data: statistics,
+        isLoading: isLoadingStatistics,
+        isError: isStatisticsError,
+        refetch: refetchStatistics,
+    } = useGetStatisticsQuery(undefined, {
         skip: !isAuthenticated,
     });
 
-    const { data: grammarStatistics, isLoading: isLoadingGrammarStatistics } =
-        useGetGrammarStatisticsQuery(undefined, {
-            skip: !isAuthenticated,
-        });
+    const {
+        data: grammarStatistics,
+        isLoading: isLoadingGrammarStatistics,
+        isError: isGrammarStatisticsError,
+        refetch: refetchGrammarStatistics,
+    } = useGetGrammarStatisticsQuery(undefined, {
+        skip: !isAuthenticated,
+    });
 
-    const [clearStatisticsOnServer, { isLoading: isClearingStatistics }] =
-        useClearStatisticsMutation();
+    const [
+        clearStatisticsOnServer,
+        { isLoading: isClearingStatistics, isError: isClearStatisticsError },
+    ] = useClearStatisticsMutation();
 
-    const [clearGrammarStatisticsOnServer, { isLoading: isClearingGrammarStatistics }] =
-        useClearGrammarStatisticsMutation();
+    const [
+        clearGrammarStatisticsOnServer,
+        { isLoading: isClearingGrammarStatistics, isError: isClearGrammarStatisticsError },
+    ] = useClearGrammarStatisticsMutation();
 
     const stats = statistics ?? EMPTY_STATISTICS;
 
@@ -88,7 +101,10 @@ function Statistics() {
         ? grammarTestStats[grammarTestStats.length - 1]
         : null;
 
-    const isLoading = isAuthenticated && (isLoadingStatistics || isLoadingGrammarStatistics);
+    const isLoading =
+        authStatus === "checking" ||
+        (isAuthenticated && (isLoadingStatistics || isLoadingGrammarStatistics));
+    const hasLoadError = isAuthenticated && (isStatisticsError || isGrammarStatisticsError);
 
     if (authStatus === "error") {
         return (
@@ -116,7 +132,25 @@ function Statistics() {
         <div className="statistics-page">
             <h2 className="statistics-title">Статистика</h2>
 
-            {!hasAnyStatistics && (
+            {(isClearStatisticsError || isClearGrammarStatisticsError) && (
+                <p role="alert">Не удалось очистить статистику. Попробуйте ещё раз.</p>
+            )}
+            {hasLoadError && (
+                <div role="alert">
+                    <p>Не удалось загрузить статистику. Проверьте соединение с сервером.</p>
+                    <button
+                        type="button"
+                        className="styled-btn"
+                        onClick={() => {
+                            if (isStatisticsError) void refetchStatistics();
+                            if (isGrammarStatisticsError) void refetchGrammarStatistics();
+                        }}
+                    >
+                        Повторить загрузку
+                    </button>
+                </div>
+            )}
+            {!hasAnyStatistics && !hasLoadError && (
                 <p className="statistics-empty">
                     Статистика пока отсутствует. Пройдите хотя бы один тест.
                 </p>

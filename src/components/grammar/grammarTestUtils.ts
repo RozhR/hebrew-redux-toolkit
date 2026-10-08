@@ -1,3 +1,5 @@
+import { shuffleArray } from "../../utils/shuffleArray";
+import { getSectionForms, GRAMMAR_TEST_SECTIONS, SECTION_TITLES } from "../../config/verbForms";
 import type { GrammarTestSection, VerbGrammar } from "../../types/grammar";
 
 export interface GrammarQuestion {
@@ -11,36 +13,7 @@ export interface GrammarQuestion {
     answers: string[];
 }
 
-interface VerbForm {
-    person: string;
-    value: string;
-}
-
-export const SECTION_TITLES: Record<GrammarTestSection, string> = {
-    present: "Настоящее время",
-    past: "Прошедшее время",
-    future: "Будущее время",
-    imperative: "Повелительное наклонение",
-};
-
-export const GRAMMAR_TEST_SECTIONS: GrammarTestSection[] = [
-    "present",
-    "past",
-    "future",
-    "imperative",
-];
-
-function shuffleArray<T>(array: T[]): T[] {
-    const result = [...array];
-
-    for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-
-    return result;
-}
+export { SECTION_TITLES, GRAMMAR_TEST_SECTIONS } from "../../config/verbForms";
 
 function isValidForm(value: string): boolean {
     const trimmed = value.trim();
@@ -48,149 +21,8 @@ function isValidForm(value: string): boolean {
     return trimmed !== "" && trimmed !== "—";
 }
 
-function getPresentForms(grammar: VerbGrammar): VerbForm[] {
-    return [
-        {
-            person: "הוא",
-            value: grammar.present.masculine_singular,
-        },
-        {
-            person: "היא",
-            value: grammar.present.feminine_singular,
-        },
-        {
-            person: "הם",
-            value: grammar.present.masculine_plural,
-        },
-        {
-            person: "הן",
-            value: grammar.present.feminine_plural,
-        },
-    ];
-}
-
-function getPastForms(grammar: VerbGrammar): VerbForm[] {
-    return [
-        {
-            person: "אני",
-            value: grammar.past.first_person_singular,
-        },
-        {
-            person: "אתה",
-            value: grammar.past.second_person_masculine_singular,
-        },
-        {
-            person: "את",
-            value: grammar.past.second_person_feminine_singular,
-        },
-        {
-            person: "הוא",
-            value: grammar.past.third_person_masculine_singular,
-        },
-        {
-            person: "היא",
-            value: grammar.past.third_person_feminine_singular,
-        },
-        {
-            person: "אנחנו",
-            value: grammar.past.first_person_plural,
-        },
-        {
-            person: "אתם",
-            value: grammar.past.second_person_masculine_plural,
-        },
-        {
-            person: "אתן",
-            value: grammar.past.second_person_feminine_plural,
-        },
-        {
-            person: "הם / הן",
-            value: grammar.past.third_person_plural,
-        },
-    ];
-}
-
-function getFutureForms(grammar: VerbGrammar): VerbForm[] {
-    return [
-        {
-            person: "אני",
-            value: grammar.future.first_person_singular,
-        },
-        {
-            person: "אתה",
-            value: grammar.future.second_person_masculine_singular,
-        },
-        {
-            person: "את",
-            value: grammar.future.second_person_feminine_singular,
-        },
-        {
-            person: "הוא",
-            value: grammar.future.third_person_masculine_singular,
-        },
-        {
-            person: "היא",
-            value: grammar.future.third_person_feminine_singular,
-        },
-        {
-            person: "אנחנו",
-            value: grammar.future.first_person_plural,
-        },
-        {
-            person: "אתם",
-            value: grammar.future.second_person_masculine_plural,
-        },
-        {
-            person: "אתן",
-            value: grammar.future.second_person_feminine_plural,
-        },
-        {
-            person: "הם / הן",
-            value: grammar.future.third_person_plural,
-        },
-    ];
-}
-
-function getImperativeForms(grammar: VerbGrammar): VerbForm[] {
-    return [
-        {
-            person: "אתה",
-            value: grammar.future.imperative_masculine,
-        },
-        {
-            person: "את",
-            value: grammar.future.imperative_feminine,
-        },
-        {
-            person: "אתם / אתן",
-            value: grammar.future.imperative_plural,
-        },
-    ];
-}
-
-function getSectionForms(grammar: VerbGrammar, section: GrammarTestSection): VerbForm[] {
-    switch (section) {
-        case "present":
-            return getPresentForms(grammar);
-
-        case "past":
-            return getPastForms(grammar);
-
-        case "future":
-            return getFutureForms(grammar);
-
-        case "imperative":
-            return getImperativeForms(grammar);
-    }
-}
-
 function getAllForms(grammar: VerbGrammar): string[] {
-    return [
-        ...getPresentForms(grammar),
-        ...getPastForms(grammar),
-        ...getFutureForms(grammar),
-        ...getImperativeForms(grammar),
-    ]
+    return GRAMMAR_TEST_SECTIONS.flatMap((section) => getSectionForms(grammar, section))
         .map((item) => item.value)
         .filter(isValidForm);
 }

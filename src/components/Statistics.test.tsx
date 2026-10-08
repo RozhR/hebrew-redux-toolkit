@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
     authStatus: "authenticated",
     statistics: {},
     grammarStatistics: [],
+    loadError: false,
+    refetch: vi.fn(),
 }));
 
 vi.mock("../store/hooks", () => ({
@@ -17,6 +19,8 @@ vi.mock("../api/statisticsApi", () => ({
     useGetStatisticsQuery: () => ({
         data: mocks.statistics,
         isLoading: false,
+        isError: mocks.loadError,
+        refetch: mocks.refetch,
     }),
 
     useGetGrammarStatisticsQuery: () => ({
@@ -42,6 +46,8 @@ vi.mock("../api/statisticsApi", () => ({
 describe("Statistics", () => {
     beforeEach(() => {
         mocks.authStatus = "authenticated";
+        mocks.loadError = false;
+        mocks.refetch.mockClear();
         mocks.statistics = {};
         mocks.grammarStatistics = [];
     });
@@ -52,6 +58,15 @@ describe("Statistics", () => {
         expect(
             screen.getByText("Статистика пока отсутствует. Пройдите хотя бы один тест."),
         ).toBeInTheDocument();
+    });
+
+    test("shows loading error instead of empty results", () => {
+        mocks.loadError = true;
+        render(<Statistics />);
+        expect(screen.getByRole("alert")).toHaveTextContent("Не удалось загрузить статистику");
+        expect(
+            screen.queryByText("Статистика пока отсутствует. Пройдите хотя бы один тест."),
+        ).not.toBeInTheDocument();
     });
 
     test("shows vocabulary test statistics", () => {

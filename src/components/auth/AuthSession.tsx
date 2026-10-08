@@ -7,7 +7,12 @@ import { useAppDispatch } from "../../store/hooks";
 
 function AuthSession() {
     const dispatch = useAppDispatch();
-    const { data: user, isSuccess, isError, error } = useGetCurrentUserQuery(undefined, {
+    const {
+        data: user,
+        isSuccess,
+        isError,
+        error,
+    } = useGetCurrentUserQuery(undefined, {
         refetchOnFocus: true,
         refetchOnReconnect: true,
     });

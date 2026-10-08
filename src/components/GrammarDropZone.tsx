@@ -14,7 +14,7 @@ function GrammarDropZone() {
 
     const { words } = useGrammarWords();
 
-    const { addGrammarWord } = useGrammarWordsActions();
+    const { addGrammarWord, actionError } = useGrammarWordsActions();
 
     const count = words.length;
 
@@ -30,7 +30,7 @@ function GrammarDropZone() {
         setIsDraggingOver(false);
     };
 
-    const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
 
         setIsDraggingOver(false);
@@ -53,7 +53,8 @@ function GrammarDropZone() {
             if (
                 !isCategory(word.category) ||
                 typeof word.id !== "number" ||
-                !Number.isInteger(word.id)
+                !Number.isInteger(word.id) ||
+                word.id < 1
             ) {
                 return;
             }
@@ -63,7 +64,8 @@ function GrammarDropZone() {
                 id: word.id,
             };
 
-            void addGrammarWord(grammarWord);
+            const added = await addGrammarWord(grammarWord);
+            if (!added) return;
 
             setJustAdded(true);
 
@@ -84,6 +86,7 @@ function GrammarDropZone() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
         >
+            {actionError && <p role="alert">{actionError}</p>}
             <h3 className="grammar-drop-title">Грамматика</h3>
 
             <div className="grammar-drop-inner">

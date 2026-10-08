@@ -1,3 +1,4 @@
+import { shuffleArray } from "../utils/shuffleArray";
 import { useState } from "react";
 
 import Card from "./Card";
@@ -15,15 +16,7 @@ function CardList({ cards, category, onStartTest }: CardListProps) {
     const [shuffledCards, setShuffledCards] = useState<CardWithId[]>(cards);
 
     const shuffleCards = () => {
-        const newCards = [...shuffledCards];
-
-        for (let i = newCards.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-
-            [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
-        }
-
-        setShuffledCards(newCards);
+        setShuffledCards((current) => shuffleArray(current));
     };
 
     return (

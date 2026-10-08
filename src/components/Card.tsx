@@ -29,7 +29,7 @@ function Card({ card, category }: CardProps) {
 
     const { words } = useGrammarWords();
 
-    const { addGrammarWord, removeGrammarWord } = useGrammarWordsActions();
+    const { addGrammarWord, removeGrammarWord, actionError } = useGrammarWordsActions();
 
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -205,6 +205,7 @@ function Card({ card, category }: CardProps) {
             data-category={category}
             data-id={card.id}
         >
+            {actionError && <p role="alert">{actionError}</p>}
             {inGrammar && (
                 <button
                     type="button"

@@ -5,10 +5,6 @@ export interface GrammarWordRef {
     id: number;
 }
 
-/* =========================================================
-   VERBS
-   ========================================================= */
-
 export interface VerbBase {
     id: number;
     infinitive: string;
@@ -95,10 +91,6 @@ export interface VerbGrammar {
     examples: VerbExamples;
 }
 
-/* =========================================================
-   ADJECTIVES
-   ========================================================= */
-
 export interface AdjectiveBase {
     id: number;
 
@@ -138,10 +130,6 @@ export interface AdjectiveGrammar {
     construction?: AdjectiveConstruction;
     examples: AdjectiveExamples;
 }
-
-/* =========================================================
-   ADVERBS
-   ========================================================= */
 
 export interface AdverbBase {
     id: number;

@@ -1,6 +1,5 @@
+import { getSectionForms, PERSON_FORMS } from "../../config/verbForms";
 import type { VerbGrammar } from "../../types/grammar";
-
-const PRONOUNS = ["אני", "אתה", "את", "הוא", "היא", "אנחנו", "אתם", "אתן", "הם / הן"];
 
 type VerbTenseTableProps = {
     grammar: VerbGrammar;
@@ -8,34 +7,8 @@ type VerbTenseTableProps = {
 
 function VerbTenseTable({ grammar }: VerbTenseTableProps) {
     const rows = [
-        {
-            tense: "Прошедшее",
-            forms: [
-                grammar.past.first_person_singular,
-                grammar.past.second_person_masculine_singular,
-                grammar.past.second_person_feminine_singular,
-                grammar.past.third_person_masculine_singular,
-                grammar.past.third_person_feminine_singular,
-                grammar.past.first_person_plural,
-                grammar.past.second_person_masculine_plural,
-                grammar.past.second_person_feminine_plural,
-                grammar.past.third_person_plural,
-            ],
-        },
-        {
-            tense: "Будущее",
-            forms: [
-                grammar.future.first_person_singular,
-                grammar.future.second_person_masculine_singular,
-                grammar.future.second_person_feminine_singular,
-                grammar.future.third_person_masculine_singular,
-                grammar.future.third_person_feminine_singular,
-                grammar.future.first_person_plural,
-                grammar.future.second_person_masculine_plural,
-                grammar.future.second_person_feminine_plural,
-                grammar.future.third_person_plural,
-            ],
-        },
+        { tense: "Прошедшее", forms: getSectionForms(grammar, "past") },
+        { tense: "Будущее", forms: getSectionForms(grammar, "future") },
     ];
 
     return (
@@ -48,9 +21,9 @@ function VerbTenseTable({ grammar }: VerbTenseTableProps) {
                         <tr>
                             <th>Время</th>
 
-                            {PRONOUNS.map((pronoun) => (
-                                <th key={pronoun} dir="rtl">
-                                    {pronoun}
+                            {PERSON_FORMS.map(({ person }) => (
+                                <th key={person} dir="rtl">
+                                    {person}
                                 </th>
                             ))}
                         </tr>
@@ -63,7 +36,7 @@ function VerbTenseTable({ grammar }: VerbTenseTableProps) {
 
                                 {row.forms.map((form, index) => (
                                     <td key={`${row.tense}-${index}`} dir="rtl">
-                                        {form}
+                                        {form.value}
                                     </td>
                                 ))}
                             </tr>

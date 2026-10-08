@@ -5,8 +5,6 @@ export interface CategoryConfig {
     levels: number;
 }
 
-export const CARDS_PER_LEVEL = 20;
-
 export const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
     verbs: {
         title: "Глаголы",
