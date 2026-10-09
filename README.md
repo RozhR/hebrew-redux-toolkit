@@ -72,3 +72,13 @@ The `/api` proxy in `vite.config.ts` is for development. Production hosting must
 ## Current limits
 
 Vocabulary and grammar tests calculate correct-answer counts in the browser. The backend validates submitted totals and level access, but does not independently grade individual answers. This is a learning tracker; results should not be treated as verified exam scores.
+
+## Local Docker setup
+
+The Dockerfile builds the frontend with Node.js 24 and serves the resulting files through Nginx.
+
+Nginx forwards /api/ requests to the backend and supports direct navigation to React Router pages.
+
+Keep this repository in a directory named hebrew-redux-toolkit beside hebrew-backend. Follow the Docker setup instructions in the backend README.
+
+After startup, open http://localhost:8080.
