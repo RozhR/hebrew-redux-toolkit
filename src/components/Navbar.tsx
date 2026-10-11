@@ -24,6 +24,8 @@ function Navbar() {
 
     const [openCategory, setOpenCategory] = useState<Category | null>(null);
 
+    const [suppressedCategory, setSuppressedCategory] = useState<Category | null>(null);
+
     const authStatus = useAppSelector((state) => state.auth.status);
 
     const { words } = useGrammarWords();
@@ -42,6 +44,26 @@ function Navbar() {
 
     const closeMenu = () => {
         setOpenCategory(null);
+    };
+
+    const handleLevelSelect = (category: Category) => {
+        setOpenCategory(null);
+        setSuppressedCategory(category);
+    };
+
+    const handleCategoryLeave = (category: Category) => {
+        setOpenCategory(null);
+
+        if (suppressedCategory === category) {
+            setSuppressedCategory(null);
+        }
+    };
+
+    const handleCategoryClick = (category: Category) => {
+        const shouldOpen = openCategory !== category;
+
+        setSuppressedCategory(shouldOpen ? null : category);
+        setOpenCategory(shouldOpen ? category : null);
     };
 
     const handleLogout = async () => {
@@ -74,21 +96,30 @@ function Navbar() {
                 {CATEGORIES.map((category) => {
                     const config = CATEGORY_CONFIG[category];
 
+                    const isOpen = openCategory === category;
+
+                    const isSuppressed = suppressedCategory === category;
+
                     return (
-                        <li className="dropdown" key={category} onMouseLeave={closeMenu}>
+                        <li
+                            className={`dropdown${isSuppressed ? " dropdown-no-hover" : ""}`}
+                            key={category}
+                            onMouseLeave={() => handleCategoryLeave(category)}
+                        >
                             <button
                                 type="button"
                                 className="dropdown-toggle"
-                                onClick={() =>
-                                    setOpenCategory(openCategory === category ? null : category)
-                                }
+                                aria-expanded={isOpen}
+                                aria-controls={`dropdown-${category}`}
+                                onClick={() => handleCategoryClick(category)}
                             >
                                 {config.title} ▾
                             </button>
 
                             <ul
+                                id={`dropdown-${category}`}
                                 className={
-                                    openCategory === category
+                                    isOpen
                                         ? "styled-dropdown dropdown-menu open"
                                         : "styled-dropdown dropdown-menu"
                                 }
@@ -107,7 +138,7 @@ function Navbar() {
                                                 <NavLink
                                                     to={`/${category}/${level}`}
                                                     className="level-link"
-                                                    onClick={closeMenu}
+                                                    onClick={() => handleLevelSelect(category)}
                                                 >
                                                     Уровень {level}
                                                 </NavLink>
@@ -141,6 +172,14 @@ function Navbar() {
                         Статистика
                     </NavLink>
                 </li>
+
+                {isAuthenticated && user?.role === "admin" && (
+                    <li>
+                        <NavLink to="/admin/analytics" className="nav-link" onClick={closeMenu}>
+                            Аналитика
+                        </NavLink>
+                    </li>
+                )}
 
                 <li className="auth-section">
                     {authStatus === "checking" ? (

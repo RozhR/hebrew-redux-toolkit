@@ -720,3 +720,46 @@
         max-width: 350px;
     }
 }
+
+/* =========================================
+   COMPACT MOBILE GRAMMAR TEST
+   ========================================= */
+
+@media (max-width: 700px) {
+    .grammar-test-page:has(.test-area) {
+        margin-top: 10px;
+    }
+
+    .grammar-test-question {
+        margin: 8px auto 14px;
+        padding: 14px;
+    }
+
+    .grammar-test-infinitive {
+        font-size: 2.2rem;
+    }
+
+    .grammar-test-translation {
+        margin: 5px 0 12px;
+        font-size: 16px;
+    }
+
+    .grammar-test-task {
+        gap: 8px;
+        padding: 9px;
+    }
+
+    .grammar-test-task span {
+        font-size: 16px;
+    }
+
+    .grammar-test-task strong {
+        font-size: 20px;
+    }
+
+    .grammar-answer-btn {
+        min-height: 45px;
+        padding: 9px 15px;
+        font-size: 19px;
+    }
+}

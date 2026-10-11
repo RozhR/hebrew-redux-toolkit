@@ -357,3 +357,69 @@
         max-width: 320px;
     }
 }
+
+/* =========================================
+   COMPACT MOBILE TEST
+   ========================================= */
+
+@media (max-width: 700px) {
+    .test-area {
+        margin-top: 8px;
+        margin-bottom: 20px;
+    }
+
+    .question-number {
+        margin: 5px 0 8px;
+        font-size: 17px;
+    }
+
+    .progress-bar {
+        height: 12px;
+        margin: 8px auto 12px;
+    }
+
+    .timer {
+        min-height: 28px;
+        margin: 8px 0 14px;
+        font-size: 22px;
+    }
+
+    .test-word {
+        min-height: 65px;
+        margin-bottom: 16px;
+        font-size: 3rem;
+    }
+
+    .answers-container {
+        gap: 10px;
+    }
+
+    .answer-btn {
+        min-height: 45px;
+        padding: 9px 15px;
+        font-size: 17px;
+    }
+
+    .answer-result {
+        min-height: 0;
+        margin-top: 12px;
+    }
+
+    .correct,
+    .wrong {
+        margin-top: 8px;
+        font-size: 22px;
+    }
+
+    .correct-answer-text {
+        margin: 8px 0;
+        font-size: 16px;
+    }
+
+    .continue-btn {
+        position: static;
+        margin-top: 8px;
+        padding: 10px 20px;
+        font-size: 17px;
+    }
+}

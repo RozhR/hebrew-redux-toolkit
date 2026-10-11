@@ -25,6 +25,16 @@ export interface AuthResponse {
     user: User;
 }
 
+export interface User {
+    id: number;
+    email: string;
+    first_name: string;
+    last_name: string;
+    role: "admin" | "user";
+    created_at: string;
+    updated_at: string;
+}
+
 const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         register: builder.mutation<User, RegisterRequest>({
