@@ -32,5 +32,9 @@ describe("Home", () => {
             "href",
             "/adverbs/1",
         );
+
+        expect(
+            screen.getByText("При разработке ни один израильтянин не пострадал!"),
+        ).toBeInTheDocument();
     });
 });
