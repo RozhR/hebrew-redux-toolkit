@@ -1,84 +1,102 @@
 # Hebrew Learning
 
-A full-stack application for learning Hebrew vocabulary and grammar. The interface is in Russian; learning content is in Hebrew.
+**A full-stack platform for learning Hebrew vocabulary and grammar, designed for Russian-speaking learners.**
 
-## Features
+**[Live website](https://hebrewlearning.co.il/) · [Backend repository](https://github.com/RozhR/hebrew-backend) · [Frontend v1.0.0](https://github.com/RozhR/hebrew-redux-toolkit/tree/v1.0.0)**
 
-- 1,300 vocabulary words: 500 verbs, 500 adjectives and 300 adverbs.
-- 25 verb levels, 25 adjective levels and 15 adverb levels, with 20 words per level.
-- Flip cards, shuffle, desktop drag-and-drop and touch long-press.
-- Vocabulary tests with four answer options and a 15-second timer.
-- The next level opens after a saved result of at least 85%.
-- Grammar tables and tests for selected verbs.
-- Registration, login, profile and logout.
-- User-specific statistics, progress and selected words stored in PostgreSQL.
-- Guest access to the first level of each category; guest grammar selections last for the current page session.
-- Error messages for failed requests and retry controls for statistics loading and grammar-test saving.
+The app combines interactive flashcards, timed quizzes, Hebrew grammar practice, personal progress tracking and an administrative analytics dashboard. The interface is in Russian, with Hebrew learning content.
 
-## Stack
+## Highlights
 
-React, TypeScript with strict checking, Redux Toolkit, RTK Query, React Router and Vite. Styling uses CSS. Tests use Vitest and React Testing Library.
+- **1,300 words:** 500 verbs, 500 adjectives and 300 adverbs.
+- **65 vocabulary levels:** 25 for verbs, 25 for adjectives and 15 for adverbs, with 20 words per level.
+- **Interactive flashcards:** flip, shuffle, desktop drag-and-drop and touch long-press.
+- **Timed vocabulary quizzes:** four options per question, 15 seconds to answer and an **85%** threshold to unlock the next level.
+- **Hebrew grammar:** conjugation and adjective-form materials, selected-word practice and grammar tests.
+- **Accounts and progress:** registration, login, personal statistics, level access and selected grammar words persisted in PostgreSQL.
+- **Guest access:** the first vocabulary level of each category is available without signing in.
+- **Admin analytics:** an access-controlled dashboard backed by administrative API endpoints.
+- **Resilience:** loading/error states and retry actions for selected failed requests.
 
-The [backend](https://github.com/RozhR/hebrew-backend) uses Node.js, Express and PostgreSQL.
+## Technology
 
-## Local setup
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React, TypeScript (strict), Redux Toolkit, RTK Query, React Router, Vite, CSS |
+| Backend | Node.js, Express, REST API |
+| Database | PostgreSQL |
+| Authentication | JWT stored in an HttpOnly cookie |
+| Testing | Vitest, React Testing Library; backend Jest and Supertest |
+| Deployment | Render, Docker and Nginx for local container setup |
 
-The current development branch is `testing`.
+## Architecture
+
+```text
+Browser (React + TypeScript)
+        |
+  Redux Toolkit / RTK Query
+        |
+        v
+   Express REST API
+        |
+        v
+ PostgreSQL (content + app schemas)
+```
+
+- `src/api` — RTK Query endpoints, network requests and server cache.
+- `src/store` — authentication state and guest grammar selections.
+- `src/hooks` — reusable timer, progress and grammar behavior.
+- `src/components` — pages, flashcards, tests, authentication and administration.
+- `src/config` — category configuration and learning rules.
+- `src/types` — TypeScript grammar types.
+- `src/utils` — shared utilities.
+
+Local component state stays in React; remote data is managed through RTK Query. Personal server data is requested for authenticated users, and logout resets the API cache. The backend separates learning materials (`content` schema) from user accounts and progress (`app` schema).
+
+## Run locally
+
+Requirements: **Node.js 24**, **npm 11**, and a running backend connected to PostgreSQL. Follow the [backend setup instructions](https://github.com/RozhR/hebrew-backend#local-setup) before starting the frontend.
 
 ```powershell
-git clone --branch testing https://github.com/RozhR/hebrew-redux-toolkit.git
+git clone https://github.com/RozhR/hebrew-redux-toolkit.git
 cd hebrew-redux-toolkit
 npm ci
 npm run dev
 ```
 
-Use Node.js 24 and npm 11 to match the verified installation environment. Start PostgreSQL and the backend first, following its README.
+Open the address reported by Vite, usually <http://localhost:5173>. In development, Vite proxies `/api` to <http://localhost:3000>. Database credentials and the JWT secret belong **only** in the backend environment, never in frontend code.
 
-Open the URL printed by Vite, normally <http://localhost:5173>. The development proxy forwards `/api` requests to <http://localhost:3000>. The frontend does not need database credentials or a JWT secret.
+For this repository, `main` is the primary development/documentation branch; `deploy` tracks the production application. The immutable `v1.0.0` tag identifies the initial published release.
 
-## Checks
+## Quality checks
 
 ```powershell
+npm run format:check
 npm run lint
 npm test
 npm run build
-npm run format:check
 ```
 
-`npm run build` checks TypeScript and writes the production assets to `dist`. `npm run test:watch` runs tests during development.
+At the v1.0.0 release checkpoint, **26 frontend tests in 13 files passed**, alongside formatting, ESLint and the TypeScript/Vite production build. The paired backend release passed **28 tests in 4 suites**.
 
-Tests cover authentication components, flashcards, statistics, grammar result saving, grammar question generation, batched requests and the actual timer lifecycle. Component tests mostly mock API hooks; they are not browser end-to-end tests.
+Tests cover authentication, flashcards, statistics, grammar result persistence/retries, grammar questions and timer behavior. Most component tests use mocked API hooks; these tests do **not** replace a browser end-to-end or production smoke test.
 
-## Structure
+## Deployment
 
-| Directory        | Responsibility                                     |
-| ---------------- | -------------------------------------------------- |
-| `src/api`        | RTK Query endpoints and server cache               |
-| `src/store`      | Authentication status and guest grammar selections |
-| `src/hooks`      | Timer, progress and grammar actions                |
-| `src/components` | Pages and reusable UI                              |
-| `src/config`     | Category rules, timers and verb-form mapping       |
-| `src/types`      | Grammar types                                      |
-| `src/utils`      | Shared utilities                                   |
+The public site is deployed on Render as a static frontend, with a separately deployed Node.js backend. The frontend production build uses `npm ci && npm run build` and serves `dist`. Both deployment services currently track their `deploy` branches.
 
-Local UI state stays in React. Server data stays in RTK Query. Personal data is fetched only for authenticated users. Logout resets the API cache.
+This repository also includes a **Dockerfile** and **Nginx** configuration for local containerized deployment. Keep `hebrew-redux-toolkit` beside `hebrew-backend` and follow the [backend Docker instructions](https://github.com/RozhR/hebrew-backend#local-docker-setup). The containerized app is then available at <http://localhost:8080>.
 
-## Backend connection and deployment
+If local Vite reports `ECONNREFUSED`, verify that the backend is listening on port 3000. If it reports `ECONNRESET`, inspect the backend logs.
 
-If Vite prints `ECONNREFUSED`, check that the backend is running on port 3000. If it prints `ECONNRESET`, inspect the backend terminal at the time of failure.
+## Known limitations
 
-The `/api` proxy in `vite.config.ts` is for development. Production hosting must route `/api` to the backend and fall back to `index.html` for frontend routes. Use HTTPS for production authentication cookies.
+Quiz answers are evaluated in the browser. The API validates the submitted totals and progression rules, but it does not independently grade each individual answer. Test scores are therefore suitable for learning progress, **not** trusted examinations.
 
-## Current limits
+This is an evolving learning product. SEO, analytics and the administrator dashboard were introduced around the initial public release; product usage and accessibility should continue to be validated with real users.
 
-Vocabulary and grammar tests calculate correct-answer counts in the browser. The backend validates submitted totals and level access, but does not independently grade individual answers. This is a learning tracker; results should not be treated as verified exam scores.
+## Release
 
-## Local Docker setup
+**v1.0.0 — 12 October 2026.** First public release with vocabulary learning, grammar exercises, accounts, saved progress, administrative analytics, SEO metadata and Google Analytics 4.
 
-The Dockerfile builds the frontend with Node.js 24 and serves the resulting files through Nginx.
-
-Nginx forwards /api/ requests to the backend and supports direct navigation to React Router pages.
-
-Keep this repository in a directory named hebrew-redux-toolkit beside hebrew-backend. Follow the Docker setup instructions in the backend README.
-
-After startup, open http://localhost:8080.
+The live application is available at **https://hebrewlearning.co.il/**.
