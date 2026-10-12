@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import Home from "./components/Home";
+import SeoMeta from "./components/SeoMeta";
 import LearningPage from "./components/LearningPage";
 import Navbar from "./components/Navbar";
 import Statistics from "./components/Statistics";
@@ -25,6 +26,8 @@ const AdminAnalytics = lazy(() => import("./components/admin/AdminAnalytics"));
 function App() {
     return (
         <>
+            <SeoMeta />
+
             <AuthSession />
 
             <Navbar />
