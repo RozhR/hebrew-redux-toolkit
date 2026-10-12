@@ -13,7 +13,8 @@ type SeoInfo = {
 const categorySeo: Record<string, { label: string; description: string }> = {
     verbs: {
         label: "Глаголы иврита",
-        description: "Учите глаголы иврита с интерактивными карточками и проверяйте знания в тестах.",
+        description:
+            "Учите глаголы иврита с интерактивными карточками и проверяйте знания в тестах.",
     },
     adjectives: {
         label: "Прилагательные иврита",
