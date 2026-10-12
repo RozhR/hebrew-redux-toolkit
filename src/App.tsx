@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import Home from "./components/Home";
+import SeoMeta from "./components/SeoMeta";
 import LearningPage from "./components/LearningPage";
 import Navbar from "./components/Navbar";
 import Statistics from "./components/Statistics";
@@ -12,15 +13,21 @@ import Login from "./components/auth/Login";
 import Profile from "./components/auth/Profile";
 import Register from "./components/auth/Register";
 
+import AdminRoute from "./components/admin/AdminRoute";
+
 import "./App.css";
 
 const Grammar = lazy(() => import("./components/Grammar"));
 
 const GrammarTest = lazy(() => import("./components/GrammarTest"));
 
+const AdminAnalytics = lazy(() => import("./components/admin/AdminAnalytics"));
+
 function App() {
     return (
         <>
+            <SeoMeta />
+
             <AuthSession />
 
             <Navbar />
@@ -35,6 +42,17 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
 
                 <Route path="/statistics" element={<Statistics />} />
+
+                <Route
+                    path="/admin/analytics"
+                    element={
+                        <AdminRoute>
+                            <Suspense fallback={<p>Загрузка аналитики...</p>}>
+                                <AdminAnalytics />
+                            </Suspense>
+                        </AdminRoute>
+                    }
+                />
 
                 <Route
                     path="/grammar"

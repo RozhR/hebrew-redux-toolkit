@@ -126,6 +126,8 @@
         opacity 0.25s ease;
 }
 
+/* Open on desktop hover or React state */
+
 .dropdown:hover .styled-dropdown,
 .styled-dropdown.open {
     opacity: 1;
@@ -133,6 +135,16 @@
     pointer-events: auto;
 
     transform: scaleY(1);
+}
+
+/* Close immediately after selecting a level */
+
+.dropdown.dropdown-no-hover:hover .styled-dropdown:not(.open) {
+    opacity: 0;
+
+    pointer-events: none;
+
+    transform: scaleY(0);
 }
 
 /* =========================================================
