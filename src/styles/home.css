@@ -1,105 +1,700 @@
+/* Home dashboard: all styles are scoped to Home; other pages are unchanged. */
 .home-page {
-    max-width: 1120px;
+    width: min(100%, 1650px);
+    min-height: 0;
     margin: 0 auto;
-    padding: clamp(48px, 8vw, 96px) 24px 72px;
-}
-
-.home-page h1 {
-    margin: 0;
-    font-size: clamp(2.3rem, 5vw, 4.2rem);
-    line-height: 1.15;
-    text-align: left;
-}
-
-.home-lead {
-    max-width: 760px;
-    margin-top: 24px;
-    color: var(--color-text-muted);
-    font-size: clamp(1rem, 2vw, 1.25rem);
-    line-height: 1.7;
-}
-
-.home-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px;
-    margin-top: 32px;
-}
-
-.home-actions a {
-    text-decoration: none;
-}
-
-.home-secondary-link {
-    padding: 12px 16px;
-    color: var(--color-primary-soft);
-    font-weight: 600;
-}
-
-.home-categories {
-    margin-top: 64px;
-}
-
-.home-page .home-section-title {
-    margin: 0 0 24px;
-    font-size: clamp(1.6rem, 3vw, 2rem);
-    text-align: left;
-}
-
-.home-grid {
+    padding: 0 clamp(12px, 2vw, 28px) 22px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
+    grid-template-columns: minmax(195px, 235px) minmax(0, 1fr);
+    gap: clamp(12px, 1.2vw, 18px);
+    align-items: stretch;
 }
 
-.home-feature {
-    padding: 24px;
-    border: 1px solid var(--color-bg-light);
+.home-sidebar,
+.home-hero,
+.home-capabilities {
+    min-width: 0;
     border-radius: 14px;
-    background: var(--color-bg-dark);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
 }
 
-.home-feature h3 {
-    margin-bottom: 12px;
-    color: var(--color-primary-soft);
-    font-size: 1.35rem;
+.home-sidebar {
+    padding: 21px 16px;
 }
 
-.home-feature p {
-    min-height: 72px;
-    color: var(--color-text-muted);
-    line-height: 1.6;
+.home-brand {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
-.home-feature a {
-    display: inline-block;
-    margin-top: 16px;
-    color: var(--color-primary-soft);
-    font-weight: 600;
+.home-brand-logo {
+    display: grid;
+    place-items: center;
+    width: 78px;
+    height: 78px;
+    border: 1px solid var(--color-primary-light);
+    border-radius: 50%;
+    background: var(--color-bg);
 }
 
-.home-note {
-    margin-top: 32px;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
+.home-brand-logo img {
+    display: block;
+    width: 68px;
+    height: 68px;
+    object-fit: contain;
+    border-radius: 50%;
 }
 
-.home-footer {
-    margin-top: 64px;
-    padding-top: 24px;
-    border-top: 1px solid var(--color-bg-light);
-    color: var(--color-text-secondary);
-    font-size: 0.875rem;
+.home-brand-name {
+    color: var(--color-text-light);
+    font-size: 1rem;
+    font-weight: 700;
     text-align: center;
+}
+
+.home-page .home-sidebar-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--color-bg-light);
+    color: var(--color-primary-soft);
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: left;
+}
+
+.home-learning-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 3px 2px;
+    border-radius: 7px;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.home-learning-link:hover,
+.home-learning-link:focus-visible {
+    background: rgba(159, 122, 234, 0.13);
+    color: var(--color-primary-light);
+}
+
+.home-learning-link:focus-visible {
+    outline: 2px solid var(--color-primary-light);
+    outline-offset: 3px;
+}
+
+.home-learning-link-unavailable {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.home-sidebar-heading svg,
+.home-sidebar-link svg {
+    flex: 0 0 auto;
+    color: var(--color-primary-light);
+}
+
+.home-word-counts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 12px 0 17px;
+    padding: 0 8px 17px;
+    border-bottom: 1px solid var(--color-bg-light);
+    list-style: none;
+}
+
+.home-word-counts li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    color: var(--color-text-muted);
+    text-align: right;
+    cursor: default;
+}
+
+.home-word-counts strong {
+    color: var(--color-text-light);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.home-word-counts span {
+    font-size: 0.94rem;
+    line-height: 1.3;
+}
+
+.home-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.home-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: 1rem;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.home-sidebar-link:hover,
+.home-sidebar-link:focus-visible {
+    background: rgba(159, 122, 234, 0.13);
+    color: var(--color-primary-soft);
+}
+
+.home-sidebar-link:focus-visible,
+.home-start-button:focus-visible {
+    outline: 2px solid var(--color-primary-light);
+    outline-offset: 3px;
+}
+
+.home-sidebar-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.home-main {
+    display: grid;
+    min-width: 0;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: clamp(12px, 1.2vw, 18px);
+}
+
+.home-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(250px, 0.9fr);
+    min-height: 0;
+    overflow: hidden;
+    align-items: center;
+    padding: clamp(20px, 2.5vw, 38px);
+}
+
+.home-hero-content {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+}
+
+.home-page .home-hero-title {
+    margin: 0;
+    color: var(--color-text-light);
+    font-size: clamp(2.05rem, 3.15vw, 3.45rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    text-align: left;
+}
+
+.home-hero-title span {
+    color: var(--color-primary-light);
+}
+
+.home-hero-description {
+    max-width: 360px;
+    margin: 18px 0 24px;
+    color: var(--color-text-muted);
+    font-size: clamp(0.96rem, 1.2vw, 1.12rem);
+    line-height: 1.5;
+}
+
+.home-page .home-start-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    max-width: 100%;
+    padding: 13px 24px;
+    color: white;
+    font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.home-start-button span {
+    font-size: 1.4em;
+    line-height: 0.7;
+}
+
+/* Two decorative learning cards use the same core gradients as cards.css. */
+.home-hero-illustration {
+    position: relative;
+    min-width: 0;
+    width: 100%;
+    height: clamp(240px, 21vw, 350px);
+    isolation: isolate;
+}
+
+.home-hero-illustration::before {
+    position: absolute;
+    z-index: -1;
+    inset: 11% 4%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(128, 90, 213, 0.2), transparent 68%);
+    content: "";
+}
+
+.home-art-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: clamp(195px, 18vw, 270px);
+    aspect-ratio: 220 / 160;
+    border-radius: 12px;
+    transform-origin: center;
+    box-shadow: var(--shadow-md);
+}
+
+.home-art-card-back {
+    z-index: 1;
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+    transform: translate(-42%, -63%) rotate(10deg);
+}
+
+.home-art-card-front {
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(214, 188, 250, 0.25);
+    background: linear-gradient(135deg, var(--color-bg-light), var(--color-bg));
+    color: var(--color-text-light);
+    transform: translate(-57%, -42%) rotate(7deg);
+}
+
+.home-art-word {
+    font-size: clamp(2.1rem, 3vw, 3.1rem);
+    line-height: 1;
+    text-align: center;
+}
+
+.home-art-audio,
+.home-art-chosen {
+    position: absolute;
+    top: 10px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.home-art-audio {
+    left: 10px;
+    background: var(--color-success);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+.home-art-chosen {
+    right: 10px;
+    background: var(--color-primary-light);
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+
+.home-art-glyph,
+.home-art-spark {
+    position: absolute;
+    color: var(--color-primary-soft);
+    pointer-events: none;
+}
+
+.home-art-glyph {
+    font-size: 1.8rem;
+    font-weight: 700;
+    opacity: 0.4;
+}
+
+.home-art-glyph-one {
+    top: 5%;
+    left: 8%;
+    transform: rotate(-15deg);
+}
+.home-art-glyph-two {
+    right: 8%;
+    bottom: 9%;
+    transform: rotate(12deg);
+}
+.home-art-glyph-three {
+    left: 11%;
+    bottom: 12%;
+    transform: rotate(-12deg);
+}
+
+.home-art-spark {
+    width: 25px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--color-primary-light);
+    opacity: 0.65;
+}
+
+.home-art-spark-one {
+    right: 6%;
+    top: 23%;
+    transform: rotate(-45deg);
+}
+.home-art-spark-two {
+    left: 3%;
+    top: 42%;
+    transform: rotate(30deg);
+}
+.home-art-spark-three {
+    right: 12%;
+    bottom: 17%;
+    transform: rotate(50deg);
+}
+
+.home-capabilities {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: clamp(16px, 1.6vw, 22px);
+}
+
+.home-page .home-section-heading {
+    margin: 0;
+    color: var(--color-primary-light);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    line-height: 1.2;
+    text-align: left;
+}
+
+.home-capabilities-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.home-capability {
+    min-width: 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--color-bg-light), var(--color-bg));
+    box-shadow: var(--shadow-sm);
+}
+
+.home-capability h3 {
+    margin: 0 0 6px;
+    color: var(--color-text-light);
+    font-size: clamp(0.98rem, 1.25vw, 1.12rem);
+    line-height: 1.25;
+}
+
+.home-capability p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: clamp(0.82rem, 0.95vw, 0.94rem);
+    line-height: 1.5;
+}
+
+/* Desktop: use the available viewport height measured beneath the navbar.
+   Prevent a tall hero from pushing the feature cards below the fold. */
+@media (min-width: 851px) {
+    .home-page {
+        height: var(--home-available-height, calc(100dvh - 100px));
+        padding-bottom: 0;
+    }
+
+    .home-main,
+    .home-sidebar {
+        min-height: 0;
+    }
+
+    .home-hero-illustration {
+        height: clamp(205px, 25vh, 320px);
+    }
+}
+
+/* Short laptops: compress spaces and ensure readable content without overflow. */
+@media (min-width: 851px) and (max-height: 790px) {
+    .home-sidebar {
+        padding: 14px 14px;
+    }
+    .home-brand {
+        margin-bottom: 10px;
+        gap: 5px;
+    }
+    .home-brand-logo {
+        width: 60px;
+        height: 60px;
+    }
+    .home-brand-logo img {
+        width: 54px;
+        height: 54px;
+    }
+    .home-word-counts {
+        gap: 8px;
+        margin: 8px 0 10px;
+        padding-bottom: 10px;
+    }
+    .home-word-counts strong {
+        font-size: 1.25rem;
+    }
+    .home-sidebar-nav {
+        gap: 2px;
+    }
+    .home-sidebar-link {
+        min-height: 38px;
+        padding: 7px 9px;
+    }
+
+    .home-main {
+        gap: 10px;
+    }
+    .home-hero {
+        padding: 18px 24px;
+    }
+    .home-page .home-hero-title {
+        font-size: clamp(2rem, 3vw, 2.7rem);
+        line-height: 1.07;
+    }
+    .home-hero-description {
+        margin: 12px 0 16px;
+        line-height: 1.4;
+    }
+    .home-page .home-start-button {
+        padding: 11px 18px;
+    }
+    .home-capabilities {
+        padding: 13px 16px;
+        gap: 8px;
+    }
+    .home-page .home-section-heading {
+        font-size: 1.25rem;
+    }
+    .home-capability {
+        padding: 10px 11px;
+    }
+    .home-capability p {
+        line-height: 1.4;
+    }
+}
+
+/* If the viewport is too short for readable content, scroll rather than clip. */
+@media (min-width: 851px) and (max-height: 620px) {
+    .home-page {
+        height: auto;
+        min-height: var(--home-available-height);
+    }
+    .home-main {
+        grid-template-rows: auto auto;
+    }
+    .home-hero {
+        min-height: 290px;
+    }
+}
+
+@media (max-width: 1190px) {
+    .home-page {
+        grid-template-columns: minmax(178px, 210px) minmax(0, 1fr);
+    }
+
+    .home-hero {
+        grid-template-columns: minmax(0, 1fr) minmax(215px, 0.8fr);
+    }
+
+    .home-capabilities-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .home-capabilities {
+        padding: 13px;
+    }
+    .home-capabilities-grid {
+        gap: 7px;
+    }
+    .home-capability {
+        padding: 9px 11px;
+    }
+    .home-capability h3 {
+        margin-bottom: 4px;
+    }
+    .home-capability p {
+        font-size: 0.8rem;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 850px) {
+    .home-page {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: auto;
+    }
+
+    .home-sidebar {
+        display: grid;
+        grid-template-columns: minmax(145px, auto) minmax(0, 1fr);
+        column-gap: 16px;
+        padding: 14px 18px;
+    }
+
+    .home-brand {
+        align-items: flex-start;
+        margin: 0;
+        grid-row: span 2;
+    }
+
+    .home-sidebar-heading {
+        grid-column: 2;
+    }
+
+    .home-word-counts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: 12px;
+        margin: 10px 0;
+        padding: 0;
+        border: 0;
+    }
+
+    .home-sidebar-nav {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin-top: 7px;
+        border-top: 1px solid var(--color-bg-light);
+        padding-top: 7px;
+    }
+
+    .home-sidebar-link {
+        width: auto;
+    }
+
+    .home-hero {
+        min-height: 340px;
+    }
 }
 
 @media (max-width: 560px) {
     .home-page {
-        padding: 48px 18px 64px;
+        padding: 0 12px 18px;
     }
 
-    .home-feature p {
-        min-height: 0;
+    .home-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .home-brand {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .home-brand-logo {
+        width: 54px;
+        height: 54px;
+    }
+
+    .home-brand-logo img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .home-word-counts {
+        gap: 8px;
+        margin: 0;
+    }
+
+    .home-word-counts strong {
+        font-size: 1.25rem;
+    }
+
+    .home-word-counts span {
+        font-size: 0.77rem;
+    }
+
+    .home-sidebar-nav {
+        justify-content: space-between;
+    }
+
+    .home-sidebar-link {
+        gap: 6px;
+        padding: 9px 7px;
+        font-size: 0.88rem;
+    }
+
+    .home-hero {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 22px 20px 8px;
+        min-height: auto;
+    }
+
+    .home-page .home-hero-title {
+        font-size: clamp(1.9rem, 7vw, 2.7rem);
+    }
+
+    .home-hero-description {
+        margin: 14px 0 20px;
+    }
+
+    .home-hero-illustration {
+        max-width: 360px;
+        margin-inline: auto;
+        height: 260px;
+    }
+
+    .home-art-card {
+        width: min(60vw, 225px);
+    }
+
+    .home-capabilities-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-sidebar-link,
+    .home-learning-link {
+        transition: none;
+    }
+}
+
+/* Narrow and short desktop windows: keep content fully readable if it cannot fit. */
+@media (min-width: 851px) and (max-width: 1020px) and (max-height: 650px) {
+    .home-page {
+        height: auto;
+        min-height: var(--home-available-height);
+    }
+
+    .home-main {
+        grid-template-rows: auto auto;
+    }
+
+    .home-hero {
+        min-height: 315px;
     }
 }
